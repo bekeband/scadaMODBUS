@@ -4,7 +4,6 @@ var PORT = 3000;
 
 /* Serial port open */
 const SerialPort = require('serialport');
-const { timeStamp } = require('console');
 
 SerialPort.list().then(
 
