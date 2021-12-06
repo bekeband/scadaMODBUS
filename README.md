@@ -1,27 +1,40 @@
 
-//below code will be generated
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-Running the program:
-# scadaMODBUS <p>This is the simple modbus backend program in nodejs. Once the get HTTP request the program asks the serial port with the MODBUS protocol. Then the program result to the client the MODBUS getting integer value. </p>
-
-<p>Running the program:</p>
-Download and install the nodejs. If don't yet.
-npm install srialport 
-npm install express
-open the terminal 
-then run node backend.js
+# scadaMODBUS 
+Simple SCADA program for MODBUS presented data.
+The goal of the SCADA MODBUS program is to offer a program of SCADA functions from standard MODBUS data sources. The nodejs 
 
 
-</body>
-</html>
+- MODBUS serial reading.
+- GET request solution in nodejs. GETting modbus data.
+- PUT command in nodejs. PUTting modbus address data with desired value.
+
+## Installation
+
+- Naturally download the nodejs.
+- Install the express and the serialport libraries.
+
+
+[Importing the Digi-Key KiCad Library into KiCad 5.0.0+]i()
+
+<p align="center">
+  <a href="https://www.deta.sh/?ref=typicode" target="_blank">
+    <img src="https://jsonplaceholder.typicode.com/deta.svg" height="70px">
+  </a>
+</p>
+
+
+## Contributing
+
+## License
+
+license:gpl
+
+## Additional Resources
+Digi-Key has a separate Partner Library located at the link below.  The Partner Library contains parts submitted by manufacturers rather than parts curated by Digi-Key's Application Engineering team.  
+
+## Licensing
+
+
 
 
 
