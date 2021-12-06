@@ -17,8 +17,8 @@ The goal of the SCADA MODBUS program is to offer a program of SCADA functions fr
 [Importing the Digi-Key KiCad Library into KiCad 5.0.0+]i()
 
 <p align="center">
-  <a href="https://www.deta.sh/?ref=typicode" target="_blank">
-    <img src="https://jsonplaceholder.typicode.com/deta.svg" height="70px">
+  <a href="" target="_blank">
+    <img src="" height="70px">
   </a>
 </p>
 
