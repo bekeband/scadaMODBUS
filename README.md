@@ -10,14 +10,20 @@ The goal of the SCADA MODBUS program is to offer a program of SCADA functions fr
 
 ## Installation
 
-- Naturally download the nodejs.
-- Install the express and the serialport libraries.
+- Download, and install the nodejs.
+- Install the express and the serialport libraries to nodejs.
+npm install express
+npm install serialport
 
+## Running (testing)
+My test enviroment contains a virtual serial port, a Modbus client application, and the Postman application. 
+Test methode:
+- Start the virtual serial port program. I use at now the <a href="https://www.hhdsoftware.com/" target="_blank"></a> program's free non commercial version. 
 
 [Importing the Digi-Key KiCad Library into KiCad 5.0.0+]i()
 
 <p align="center">
-  <a href="" target="_blank">
+  <a href="https://www.hhdsoftware.com/" target="_blank">
     <img src="" height="70px">
   </a>
 </p>
