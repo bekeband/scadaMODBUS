@@ -45,6 +45,8 @@ http://localhost:3000/test/holding/get/0
 http://localhost:3000/test/holding/set/0/67
 
 
+<img src="resources/Postman put.png">
+
 <img src="resources/Modbus client put result.png">
 
 You can see the writing Modbus data (67) on the first Modbus register.
