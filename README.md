@@ -58,7 +58,7 @@ You can see the writing Modbus data (67) on the first Modbus register.
 
  [Postman](https://www.postman.com/).
 
-## Licensing
+
 
 
 
