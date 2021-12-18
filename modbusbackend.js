@@ -1,3 +1,6 @@
+
+
+
 var express = require('express');
 var app = express();
 var PORT = 3000;
@@ -37,6 +40,7 @@ function ModRTU_CRC(buf, len) {
     return parseInt(crc);
 }
 /* MODBUF function codes. We use the 03, and 06 fiunctions now. The 03 function's register count is one for simplicity. */
+const READ_COILS_REGISTERS_FUNCTION_CODE = 0x01;
 const READ_HOLDING_REGISTERS_FUNCTION_CODE = 0x03;
 const WRITE_REGISTER_FUNCTION_CODE = 0x06;
 const MODBUS_DEVICE_ADDRESS = 1;
