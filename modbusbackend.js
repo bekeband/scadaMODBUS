@@ -37,16 +37,29 @@ function ModRTU_CRC(buf, len) {
     return parseInt(crc);
 }
 /* MODBUF function codes. We use the 03, and 06 fiunctions now. The 03 function's register count is one for simplicity. */
+
+const READ_COILS_FUNCTION_CODE = 0x01;
+const READ_DISCRETE_INPUTS_FUNCTION_CODE = 0x02;
 const READ_HOLDING_REGISTERS_FUNCTION_CODE = 0x03;
-const WRITE_REGISTER_FUNCTION_CODE = 0x06;
+const READ_INPUT_REGISTERS_FUNCTION_CODE = 0x04;
+const WRITE_SINGLE_COIL_FUNCTION_CODE = 0x05;
+const WRITE_SINGLE_REGISTER_FUNCTION_CODE = 0x06;
+const READ_EXCEPTIOS_STATUS_CODE = 0x07;
+const DIAGNOSTIC_CODE = 0x08;
+const GET_COMM_EVENT_CODE = 0x0B;
+const GET_COMM_EVENT_LOG = 0x0C;
 const MODBUS_DEVICE_ADDRESS = 1;
 
 const MAX_READ_TRYCOUNT = 0;
 
 
+function assemblyCommandBufferHeader(deviceAddress, functionCode) {
+    
+} 
+
 function assemblyWriteRegisterCommand(deviceAddress, regAddress, value) {
     outBuffer[0] = deviceAddress;
-    outBuffer[1] = WRITE_REGISTER_FUNCTION_CODE;
+    outBuffer[1] = WRITE_SINGLE_REGISTER_FUNCTION_CODE;
     outBuffer[2] = (regAddress >>> 8) & 0xFF;
     outBuffer[3] = regAddress & 0xFF;
     outBuffer[4] = (value >>> 8) & 0xFF;
