@@ -1,3 +1,6 @@
+
+
+
 var express = require('express');
 var app = express();
 var PORT = 3000;
@@ -37,33 +40,47 @@ function ModRTU_CRC(buf, len) {
     return parseInt(crc);
 }
 /* MODBUF function codes. We use the 03, and 06 fiunctions now. The 03 function's register count is one for simplicity. */
+const READ_COILS                = 0x01;
+const READ_DISCRETE_INPUTS      = 0x02;
+const READ_HOLDING_REGISTERS    = 0x03;
+const READ_INPUT_REGISTERS      = 0x04;
+const WRITE_SINGLE_COIL         = 0x05; 
+const WRITE_SINGLE_REGISTER     = 0x06;
+const READ_EXCEPTION_STATUS     = 0x07;
+const GET_COMM_EVENT_COUNTER    = 0x0B;
+const GET_COMM_EVENT_LOG        = 0x0C;
+const WRITE_MULTIPLE_COILS      = 0x0F;
+const WRITE_MULTIPLE_REGISTERS  = 0x10;
+const REPORT_SERVER_ID          = 0x11;
+const READ_FILE_RECORD          = 0x14;
+const WRITE_FILE_RECORD         = 0x15;
+const MASK_WRITE_REGISTER       = 0x16;
+const READ_WRITE_MULTIPLE_REGISTERS = 0x17;
+const READ_FIFO_QUEUE           = 0x18;
+const ENCAPSULATED_INTERFACE_TRANSPORT  = 0x2B;
 
-const READ_COILS_FUNCTION_CODE = 0x01;
-const READ_DISCRETE_INPUTS_FUNCTION_CODE = 0x02;
-const READ_HOLDING_REGISTERS_FUNCTION_CODE = 0x03;
-const READ_INPUT_REGISTERS_FUNCTION_CODE = 0x04;
-const WRITE_SINGLE_COIL_FUNCTION_CODE = 0x05;
-const WRITE_SINGLE_REGISTER_FUNCTION_CODE = 0x06;
-const READ_EXCEPTIOS_STATUS_CODE = 0x07;
-const DIAGNOSTIC_CODE = 0x08;
-const GET_COMM_EVENT_CODE = 0x0B;
-const GET_COMM_EVENT_LOG = 0x0C;
-const MODBUS_DEVICE_ADDRESS = 1;
+const MODBUS_DEVICE_ADDRESS     = 1;
 
 const MAX_READ_TRYCOUNT = 0;
 
 
-function assemblyCommandBufferHeader(deviceAddress, functionCode) {
-    
-} 
+function makeTwoWordRegisterCommand(deviceAddress, functionCode, firstWord, secondWord, buffer) {
+    buffer[0] = deviceAddress;
+    buffer[1] = functionCode;
+    buffer[2] = (firstWord >>> 8) & 0xFF;
+    buffer[3] = firstWord & 0xFF;
+    buffer[4] = (secondWord >>> 8) & 0xFF;
+    buffer[5] = secondWord & 0xFF;
+}
 
 function assemblyWriteRegisterCommand(deviceAddress, regAddress, value) {
-    outBuffer[0] = deviceAddress;
-    outBuffer[1] = WRITE_SINGLE_REGISTER_FUNCTION_CODE;
+/*    outBuffer[0] = deviceAddress;
+    outBuffer[1] = WRITE_SINGLE_REGISTER;
     outBuffer[2] = (regAddress >>> 8) & 0xFF;
     outBuffer[3] = regAddress & 0xFF;
     outBuffer[4] = (value >>> 8) & 0xFF;
-    outBuffer[5] = value & 0xFF;
+    outBuffer[5] = value & 0xFF;*/
+    makeTwoWordRegisterCommand(deviceAddress, WRITE_SINGLE_REGISTER, regAddress, value, outBuffer)
     var CRC = ModRTU_CRC(outBuffer, 6);
     outBuffer[6] = CRC & 0xFF;
     outBuffer[7] = (CRC >>> 8) & 0xFF;
@@ -71,7 +88,7 @@ function assemblyWriteRegisterCommand(deviceAddress, regAddress, value) {
 
 function assemblyReadHoldingRegistersCommand(deviceAddress, startAddress) {
     outBuffer[0] = deviceAddress;
-    outBuffer[1] = READ_HOLDING_REGISTERS_FUNCTION_CODE;
+    outBuffer[1] = READ_HOLDING_REGISTERS;
     outBuffer[2] = (startAddress >>> 8) & 0xFF;
     outBuffer[3] = startAddress & 0xFF;
     outBuffer[4] = 0;
