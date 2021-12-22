@@ -172,14 +172,14 @@ app.get('/test/holding/get/:address/:quantity', function (req, res, next) {
         console.log("READBUFFER AWAIT = ", data);
         console.log('address', req.params.address);
 
-        var i = data[2] + (data[3] * 256);
-        for (j = 4; j < i; j++) {
-            
+        var regLength = data[2] + (data[3] * 256);
+        for (j = 0; j < (regLength / 2); j++) {
+            var valHi = data[3 + (j * 2)];
+            var valLow = data[4 + (j * 2)];                
+            var readValue = (valHi * 256) + valLow;
+            console.log("Data [" + j + "] =", readValue);
         }
 
-        var valHi = data[3 + (0 * 2)];
-        var valLow = data[4 + (0 * 2)];
-        var readValue = (valHi * 256) + valLow;
         res.json({ register: req.params.address, value: readValue })
         res.end();
     });
