@@ -172,7 +172,10 @@ app.get('/test/holding/get/:address/:quantity', function (req, res, next) {
         console.log("READBUFFER AWAIT = ", data);
         console.log('address', req.params.address);
 
-//        for (int i = 0; i < data)
+        var i = data[2] + (data[3] * 256);
+        for (j = 4; j < i; j++) {
+            
+        }
 
         var valHi = data[3 + (0 * 2)];
         var valLow = data[4 + (0 * 2)];
