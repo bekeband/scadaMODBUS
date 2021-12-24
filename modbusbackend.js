@@ -88,7 +88,12 @@ function makeCommandBuffer(buffer, deviceAddress, functionCode) {
     }
     return bufferPtr;
 }
-
+/**
+ * 
+ * @param {*} buffer 
+ * @param {*} nextData 
+ * @returns 
+ */
 function storeCRCOnBufferTail(buffer, nextData) {
     var CRC = ModRTU_CRC(buffer, nextData);
     outBuffer[nextData++] = CRC & 0xFF;
@@ -106,7 +111,12 @@ function assemblyWriteRegisterCommand(deviceAddress, regAddress, value) {
     nextData = makeCommandBuffer(outBuffer, deviceAddress, WRITE_SINGLE_REGISTER, regAddress, value);
     storeCRCOnBufferTail(outBuffer, nextData);
 }
-
+/**
+ * 
+ * @param {*} deviceAddress 
+ * @param {*} startAddress 
+ * @param {*} quantityRegisters 
+ */
 function assemblyReadHoldingRegistersCommand(deviceAddress, startAddress, quantityRegisters) {
     nextData = makeCommandBuffer(outBuffer, deviceAddress, READ_HOLDING_REGISTERS, startAddress, quantityRegisters);
     storeCRCOnBufferTail(outBuffer, nextData);
@@ -118,8 +128,13 @@ port.on('error', function (err) {
 })
 
 /**Processing readed datas. */
+/**
+ * 
+ * @param {*} readBuffer   The reading datas.
+ * @returns 
+ */
 function processData(readBuffer) {
-    console.log("READBUFFER = ", readBuffer);
+//    console.log("READBUFFER = ", readBuffer);
     if (readBuffer.length > 2) {
         CRCLength = readBuffer.length - 2;
         var CRC = ModRTU_CRC(readBuffer, CRCLength);
@@ -127,19 +142,18 @@ function processData(readBuffer) {
         if (((CRC & 0xFF) == readBuffer[readBuffer.length - 2]) && ((CRC >>> 8) & 0xFF) == readBuffer[readBuffer.length - 1]) {
             //      console.log('CRC LO = ', (CRC & 0xFF))
             //      console.log("CRC HI = ", (CRC >>> 8) & 0xFF);
-            console.log("Reading data\'s CRC OK")
+//            console.log("Reading data\'s CRC OK")
             return true;
         } else {
-            console.log("Bad CRC of Reading data\'s")
+//            console.log("Bad CRC of Reading data\'s")
             return false;
         }
 
     } else {
-        console.log("readBuffer.length <= 2)")
+//        console.log("readBuffer.length <= 2)")
         return false;
     }
     return false;
-    //  resolve(data);
 }
 
 /**App.get get the MODBUS register data. */
@@ -148,7 +162,7 @@ app.get('/test/holding/get/:address/:quantity', function (req, res, next) {
 
     p = new Promise((resolve, reject) => {
         assemblyReadHoldingRegistersCommand(MODBUS_DEVICE_ADDRESS, req.params.address, req.params.quantity);
-        console.log("WRITEBUFFER = ", outBuffer);
+//     console.log("WRITEBUFFER = ", outBuffer);    
 
         /**Write MODBUS outbuffer to serial. */
         port.write(outBuffer);
@@ -170,8 +184,8 @@ app.get('/test/holding/get/:address/:quantity', function (req, res, next) {
 
     p.then((data) => {
 
-        console.log("READBUFFER AWAIT = ", data);
-        console.log('address', req.params.address);
+//        console.log("READBUFFER AWAIT = ", data);
+//        console.log('address', req.params.address);
 
         var dataTable = [];
 
