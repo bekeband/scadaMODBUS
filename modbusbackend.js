@@ -173,8 +173,7 @@ app.get('/test/holding/get/:address/:quantity', function (req, res, next) {
         console.log("READBUFFER AWAIT = ", data);
         console.log('address', req.params.address);
 
-        var inputData = {}
-        inputData.table = []
+        var dataTable = [];
 
         var regLength = data[2] + (data[3] * 256);
         for (j = 0; j < (regLength / 2); j++) {
@@ -186,20 +185,12 @@ app.get('/test/holding/get/:address/:quantity', function (req, res, next) {
                 register: +req.params.address + j,
                 value: readValue
             }
-            inputData.table.push(obj)
-
-            // Adding the new data to our object
-            //            myObject.table.push(newData);
-            // Adding the new data to our object
-            //              myObject.push(newData);
-            console.log("Data [" + j + "] =", readValue);
+            dataTable.push(obj);
 
         }
-        console.log("inputData.table = ", inputData.table);
+//        console.log("dataTable = ", dataTable);
 
-        res.json(
-            { "datas": [{ register: req.params.address, value: readValue }, { register: req.params.address, value: readValue }] }
-        )
+        res.json(dataTable)
         res.end();
 
     });
