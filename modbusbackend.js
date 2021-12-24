@@ -1,5 +1,6 @@
 
 var express = require('express');
+const { json } = require('express/lib/response');
 var app = express();
 var PORT = 3000;
 
@@ -172,16 +173,26 @@ app.get('/test/holding/get/:address/:quantity', function (req, res, next) {
         console.log("READBUFFER AWAIT = ", data);
         console.log('address', req.params.address);
 
+        var valHi, valLow, readValue, feed;
+        var data = [];
+
         var regLength = data[2] + (data[3] * 256);
         for (j = 0; j < (regLength / 2); j++) {
-            var valHi = data[3 + (j * 2)];
-            var valLow = data[4 + (j * 2)];                
-            var readValue = (valHi * 256) + valLow;
+            valHi = data[3 + (j * 2)];
+            valLow = data[4 + (j * 2)];                
+            readValue = (valHi * 256) + valLow;
+
+            feed = {register: req.params.address, value: readValue};
+
+            data.push(feed);
+
             console.log("Data [" + j + "] =", readValue);
         }
-
-        res.json({ register: req.params.address, value: readValue })
+        
+//        res.json({ register: req.params.address, value: readValue })
+        res.json(data);
         res.end();
+
     });
 
 });
