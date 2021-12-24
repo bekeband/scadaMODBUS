@@ -84,7 +84,7 @@ function makeCommandBuffer(buffer, deviceAddress, functionCode) {
     for (i = 3; i < arguments.length; i++) {
         buffer[bufferPtr++] = (arguments[i] >>> 8) & 0xFF;
         buffer[bufferPtr++] = arguments[i] & 0xFF;
-//        console.log("arguments[" + i + "] = ", arguments[i]);
+        //        console.log("arguments[" + i + "] = ", arguments[i]);
     }
     return bufferPtr;
 }
@@ -173,24 +173,32 @@ app.get('/test/holding/get/:address/:quantity', function (req, res, next) {
         console.log("READBUFFER AWAIT = ", data);
         console.log('address', req.params.address);
 
-        var valHi, valLow, readValue, feed;
-        var data = [];
+        var data = {}
+        data.table = []
 
         var regLength = data[2] + (data[3] * 256);
         for (j = 0; j < (regLength / 2); j++) {
-            valHi = data[3 + (j * 2)];
-            valLow = data[4 + (j * 2)];                
-            readValue = (valHi * 256) + valLow;
+            var valHi = data[3 + (j * 2)];
+            var valLow = data[4 + (j * 2)];
+            var readValue = (valHi * 256) + valLow;
 
-            feed = {register: req.params.address, value: readValue};
+            var obj = {
+                register: req.params.address,
+                value: readValue
+            }
+            data.table.push(obj)
 
-            data.push(feed);
+            // Adding the new data to our object
+            myObject.table.push(newData);
+            // Adding the new data to our object
+            //              myObject.push(newData);
 
             console.log("Data [" + j + "] =", readValue);
         }
-        
-//        res.json({ register: req.params.address, value: readValue })
-        res.json(data);
+
+        res.json(
+            { "datas": [{ register: req.params.address, value: readValue }, { register: req.params.address, value: readValue }] }
+        )
         res.end();
 
     });
