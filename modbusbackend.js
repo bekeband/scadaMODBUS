@@ -1,8 +1,12 @@
 
+
 var express = require('express');
 const { json } = require('express/lib/response');
 var app = express();
 var PORT = 3000;
+
+let cors = require("cors");
+app.use(cors());
 
 /* Serial port open */
 const SerialPort = require('serialport');
