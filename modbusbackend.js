@@ -173,61 +173,6 @@ function processData(readBuffer) {
     return false;
 }
 
-/**App.get get the MODBUS coils data. */
-
-app.get(urlString, function (req, res, next) {
-
-    p = new Promise((resolve, reject) => {
-        assemblyReadHoldingRegistersCommand(MODBUS_DEVICE_ADDRESS, req.params.address, req.params.quantity);
-//     console.log("WRITEBUFFER = ", outBuffer);    
-
-        /**Write MODBUS outbuffer to serial. */
-        port.write(outBuffer);
-
-        /**Read the answer.  */
-        port.once('data', (data) => {
-            /**Process the reading datas. */
-            if (processData(data)) {
-                resolve(data);
-
-            }
-
-        });
-
-        port.once('error', (err) => {
-            reject(err);
-        });
-    });
-
-    p.then((data) => {
-
-//        console.log("READBUFFER AWAIT = ", data);
-//        console.log('address', req.params.address);
-
-        var dataTable = [];
-
-        var regLength = data[2] + (data[3] * 256);
-        for (j = 0; j < (regLength / 2); j++) {
-            var valHi = data[3 + (j * 2)];
-            var valLow = data[4 + (j * 2)];
-            var readValue = (valHi * 256) + valLow;
-
-            var obj = {
-                register: +req.params.address + j,
-                value: readValue
-            }
-            dataTable.push(obj);
-
-        }
-//        console.log("dataTable = ", dataTable);
-
-        res.json(dataTable)
-        res.end();
-
-    });
-
-}); 
-
 /**App.get get the MODBUS register data. */
 
 app.get('/test/holding/get/:address/:quantity', function (req, res, next) {
@@ -261,7 +206,7 @@ app.get('/test/holding/get/:address/:quantity', function (req, res, next) {
 
         var dataTable = [];
 
-        var regLength = data[2] + (data[3] * 256);
+        var regLength = data[2];
         for (j = 0; j < (regLength / 2); j++) {
             var valHi = data[3 + (j * 2)];
             var valLow = data[4 + (j * 2)];
