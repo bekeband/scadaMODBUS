@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+<!--    <link rel="stylesheet" href="testGetfromHTML.css">-->
+    <script>
+
+        async function fetchAsync() {
+
+            startAddress = readHoldingRegisterStartAddress.value;
+
+            urlSTring = "http://localhost:3000/test/holding/get/" + readHoldingRegisterStartAddress.value + "/" + readHoldingRegisterQuantity.value;
+
+            var result;
+
+            try {
+
+            let response = await fetch(urlSTring);
+            result = await response.json();
+
+            } catch (error) {
+                console.error(error);
+                return null;
+            };
+            for (i = 0; i < result.length; i++) {
+                //document.getElementById("demo").innerHTML = "Paragraph changed!";
+                document.getElementById("dlist").innerHTML += " <p> Data[" + i + "] = " + result[i].value;
+            }
+            return result;
+        }
+
+        function initModbusTest() {
+
+
+            readHoldingRegisterStartAddress = document.createElement('input');
+            readHoldingRegisterStartAddress.type = "number";
+            readHoldingRegisterStartAddress.min = 0;
+            readHoldingRegisterStartAddress.max = 65535;
+            readHoldingRegisterStartAddress.value = 0;
+
+            startLabel = document.createElement('label');
+            startLabel.setAttribute("for", readHoldingRegisterStartAddress);
+            startLabel.innerHTML = "Start Address : (0 .. 65535) : ";
+
+            readHoldingRegisterQuantity = document.createElement('input');
+            readHoldingRegisterQuantity.type = "number";
+            readHoldingRegisterQuantity.min = 1;
+            readHoldingRegisterQuantity.max = 125;
+            readHoldingRegisterQuantity.value = 1;
+
+            QuantityLabel = document.createElement('label');
+            QuantityLabel.setAttribute("for", readHoldingRegisterQuantity);
+            QuantityLabel.innerHTML = ", Quantity registers (1 .. 125) : ";
+
+
+            readHoldingRegisterButton = document.createElement('input');
+            readHoldingRegisterButton.type = "button";
+            readHoldingRegisterButton.value = "Read Holding Register";
+
+            readHoldingRegisterButton.addEventListener('click', function () {
+
+                fetchAsync();
+
+            });
+
+
+            dlist = document.createElement('label');
+            dlist.id = 'dlist';
+
+            document.body.appendChild(startLabel);
+            document.body.appendChild(readHoldingRegisterStartAddress);
+            document.body.appendChild(QuantityLabel);
+            document.body.appendChild(readHoldingRegisterQuantity);
+            document.body.appendChild(readHoldingRegisterButton);
+            document.body.appendChild(dlist);
+            
+
+        }</script>
+</head>
+
+<body>
+
+    <script>
+
+        initModbusTest();
+
+    </script>
+
+
+    <!--   <button onclick="fetchAsync('string');">Get URL</button>-->
+
+</body>
+
+</html>
