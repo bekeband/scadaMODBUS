@@ -219,7 +219,7 @@ app.get('/test/holding/get/:address/:quantity', function (req, res, next) {
             dataTable.push(obj);
 
         }
-//        console.log("dataTable = ", dataTable);
+        console.log("dataTable = ", dataTable);
 
         res.json(dataTable)
         res.end();
