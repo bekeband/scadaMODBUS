@@ -1,0 +1,10 @@
+body {
+    background-color: lightblue;
+  }
+
+  .myLists {
+    border: 5px outset red;
+    background-color: lightblue;
+    width: 10%;
+    text-align: left;
+  }
