@@ -9,31 +9,6 @@
     <link rel="stylesheet" href="testGetfromHTML.css">
     <script>
 
-        async function setData() {
-            const location = localhost;
-            try {
-                const config = {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                }
-                const response = await fetch(`http://localhost:3000/test/holding/set/2/678`, config)
-                //const json = await response.json() ${location}
-                if (response.ok) {
-                    //return json
-                    return response
-                } else {
-                    //
-                }
-            } catch (error) {
-                //
-            }
-        }
-
-
         async function fetchAsync() {
 
             const location = 'http://localhost:3000/test/holding/set/';
@@ -65,12 +40,6 @@
             var resultsList = document.getElementById("resultsList");
             resultsList.innerHTML = '';
 
-            /*            for (i = 0; i < result.length; i++) {
-            
-                            var address = Number(writeHoldingRegisterStartAddress.value) + i;
-                            var resultValue = result[i].value;
-                            resultsList.innerHTML += `<li> Data[${address}] = ${resultValue} </li>`;
-                        }*/
             return result;
         }
 
@@ -103,7 +72,6 @@
             writeHoldingRegisterButton.value = "Write Holding Register";
 
             writeHoldingRegisterButton.addEventListener('click', function () {
-//                setData();
                 fetchAsync();
 
             });
