@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="testGetfromHTML.css">
+    <script>
+
+        async function setData() {
+            const location = localhost;
+            try {
+                const config = {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                }
+                const response = await fetch(`http://localhost:3000/test/holding/set/2/678`, config)
+                //const json = await response.json() ${location}
+                if (response.ok) {
+                    //return json
+                    return response
+                } else {
+                    //
+                }
+            } catch (error) {
+                //
+            }
+        }
+
+
+        async function fetchAsync() {
+
+            const location = 'http://localhost:3000/test/holding/set/';
+
+            startAddress = writeHoldingRegisterStartAddress.value;
+
+            askString = writeHoldingRegisterStartAddress.value + "/" + writeHoldingRegisterNewData.value;
+
+            var result;
+
+            const config = {
+                method: 'PUT',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            }
+
+            try {
+
+                let response = await fetch(location + askString, config);
+                result = await response.json();
+
+            } catch (error) {
+                console.error(error);
+                return null;
+            };
+
+            var resultsList = document.getElementById("resultsList");
+            resultsList.innerHTML = '';
+
+            /*            for (i = 0; i < result.length; i++) {
+            
+                            var address = Number(writeHoldingRegisterStartAddress.value) + i;
+                            var resultValue = result[i].value;
+                            resultsList.innerHTML += `<li> Data[${address}] = ${resultValue} </li>`;
+                        }*/
+            return result;
+        }
+
+        function initModbusHoldingSetTest() {
+
+
+            writeHoldingRegisterStartAddress = document.createElement('input');
+            writeHoldingRegisterStartAddress.type = "number";
+            writeHoldingRegisterStartAddress.min = 0;
+            writeHoldingRegisterStartAddress.max = 65535;
+            writeHoldingRegisterStartAddress.value = 0;
+
+            startLabel = document.createElement('label');
+            startLabel.setAttribute("for", writeHoldingRegisterStartAddress);
+            startLabel.innerHTML = "Holding register Address : (0 .. 65535) : ";
+
+            writeHoldingRegisterNewData = document.createElement('input');
+            writeHoldingRegisterNewData.type = "number";
+            writeHoldingRegisterNewData.min = 1;
+            writeHoldingRegisterNewData.max = 125;
+            writeHoldingRegisterNewData.value = 1;
+
+            NewDataLabel = document.createElement('label');
+            NewDataLabel.setAttribute("for", writeHoldingRegisterNewData);
+            NewDataLabel.innerHTML = ", New value of register (0 .. 65535) : ";
+
+
+            writeHoldingRegisterButton = document.createElement('input');
+            writeHoldingRegisterButton.type = "button";
+            writeHoldingRegisterButton.value = "Write Holding Register";
+
+            writeHoldingRegisterButton.addEventListener('click', function () {
+//                setData();
+                fetchAsync();
+
+            });
+
+
+            dlist = document.createElement('label');
+            dlist.id = 'dlist';
+
+            document.body.appendChild(startLabel);
+            document.body.appendChild(writeHoldingRegisterStartAddress);
+            document.body.appendChild(NewDataLabel);
+            document.body.appendChild(writeHoldingRegisterNewData);
+            document.body.appendChild(writeHoldingRegisterButton);
+            document.body.appendChild(dlist);
+
+
+        }</script>
+</head>
+
+<body>
+
+    <script>
+
+        initModbusHoldingSetTest();
+
+    </script>
+
+    <ul class="myLists" id="resultsList">
+
+    </ul>
+
+</body>
+
+</html>
