@@ -5,6 +5,14 @@ function setupSerialPort() {
 
 }
 
+function StartDataRead() {
+
+}
+
+function EndDataRead() {
+  
+}
+
 /**
  * 
  */
@@ -22,37 +30,35 @@ function MODBUSWriteHandle() {
 
   })
 }
-
 /**
- * 
- * @param {*} data 
- * @param {*} length 
+ * @param {*} readHoldingRegisterStartAddress   The Holding start register address.
+ * @param {*} readHoldingRegistersQuantity   Quantity the consequent registers.
  * @returns 
  */
+async function fetchAsync(readHoldingRegisterStartAddress, readHoldingRegistersQuantity) {
 
-function writeAndExpect(data, length) {
-    return new Promise((resolve, reject) => {
-      const buffer = new Buffer(length);
-      this._port.write(data, (error) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-      });
-      let offset = 0;
-      let handler = (d) => {
-        try {
-          Uint8Array.from(d).forEach(byte => buffer.writeUInt8(byte, offset));
-          offset += d.length;
-        } catch (err) {
-          reject(err);
-          return;
-        }
-        if (offset === length) {
-          resolve(buffer);
-          this._port.removeListener("data", handler);
-        };
-      };
-      this._port.on("data", handler);
-    });
+  urlSTring = "http://localhost:3000/test/holding/get/" + readHoldingRegisterStartAddress + "/" + readHoldingRegistersQuantity;
+
+  var result;
+
+  try {
+
+      let response = await fetch(urlSTring);
+      result = await response.json();
+
+  } catch (error) {
+      console.error(error);
+      return null;
+  };
+
+  var resultsList = document.getElementById("resultsList");
+  resultsList.innerHTML = '';
+
+  for (i = 0; i < result.length; i++) {
+
+      var address = Number(readHoldingRegisterStartAddress) + i;
+      var resultValue = result[i].value;
+      resultsList.innerHTML += `<li> Data[${address}] = ${resultValue} </li>`;
   }
+  return result;
+}

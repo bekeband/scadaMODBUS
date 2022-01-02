@@ -5,6 +5,6 @@ body {
   .myLists {
     border: 5px outset red;
     background-color: lightblue;
-    width: 10%;
+    width: 15%;
     text-align: left;
   }

@@ -7,37 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="testGetfromHTML.css">
+    <script src="/frontend/dataConnect.js"></script>
     <script>
-
-        async function fetchAsync() {
-
-            startAddress = readHoldingRegisterStartAddress.value;
-
-            urlSTring = "http://localhost:3000/test/holding/get/" + readHoldingRegisterStartAddress.value + "/" + readHoldingRegisterQuantity.value;
-
-            var result;
-
-            try {
-
-                let response = await fetch(urlSTring);
-                result = await response.json();
-
-            } catch (error) {
-                console.error(error);
-                return null;
-            };
-
-            var resultsList = document.getElementById("resultsList");
-            resultsList.innerHTML = '';
-
-            for (i = 0; i < result.length; i++) {
-
-                var address = Number(readHoldingRegisterStartAddress.value) + i;
-                var resultValue = result[i].value;
-                resultsList.innerHTML += `<li> Data[${address}] = ${resultValue} </li>`;
-            }
-            return result;
-        }
 
         function initModbusHoldingGetTest() {
 
@@ -69,7 +40,7 @@
 
             readHoldingRegisterButton.addEventListener('click', function () {
 
-                fetchAsync();
+                fetchAsync(readHoldingRegisterStartAddress.value, readHoldingRegisterQuantity.value);
 
             });
 
