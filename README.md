@@ -53,7 +53,7 @@ http://localhost:3000/test/holding/set/0/67
 
 You can see the writing Modbus data (67) on the first Modbus register.
 
-
+[Test HTML mode.](HTMLTest.md)
 
 
 
