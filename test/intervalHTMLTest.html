@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../frontend/dataConnect.js"></script>
+    <script>
+
+        var readedDatasNumber = 0;
+
+        function startIntervalRead() {
+            StartDataRead();
+        }
+
+        function stopIntervalRead() {
+            EndDataRead();
+        }
+
+        function initElement() {
+
+
+            startIntervalReadButton = document.createElement('input');
+            startIntervalReadButton.type = "button";
+            startIntervalReadButton.value = "Start Interval read";
+
+            startIntervalReadButton.addEventListener('click', function () {
+                startIntervalRead();
+            });
+
+            stopIntervalReadButton = document.createElement('input');
+            stopIntervalReadButton.type = "button";
+            stopIntervalReadButton.value = "Stop Interval read";
+
+            stopIntervalReadButton.addEventListener('click', function () {
+                stopIntervalRead();
+            });
+
+            readedDatas = document.createElement('input');
+            readedDatas.type = "number";
+            readedDatas.min = 0;
+            readedDatas.max = 65535;
+            readedDatas.value = 0;
+
+
+            //            document.body.appendChild(startLabel);
+            document.body.appendChild(startIntervalReadButton);
+            document.body.appendChild(stopIntervalReadButton);
+            document.body.appendChild(readedDatas);
+        }
+    </script>
+</head>
+
+<body>
+    <script>
+
+        initElement();
+
+    </script>
+</body>
+
+</html>

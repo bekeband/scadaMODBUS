@@ -1,17 +1,28 @@
 
-
+var readInterval = 1000
+var intervalid = 0;
 
 function setupSerialPort() {
 
 }
 
 function StartDataRead() {
-
+  setInterval(intervalFunc, readInterval);
 }
 
 function EndDataRead() {
-  
+  clearInterval(this);
 }
+
+function setReadInterval(newInterval) {
+  readInterval = newInterval;
+}
+
+function intervalFunc() {
+  console.log('fetchAsync(readHoldingRegisterStartAddress, readHoldingRegistersQuantity)');
+  fetchAsync(1, 10);
+}
+
 
 /**
  * 
