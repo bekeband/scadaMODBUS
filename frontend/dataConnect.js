@@ -13,11 +13,18 @@ function StartDataRead() {
 function EndDataRead() {
   clearInterval(this);
 }
+/**
+ * 
+ * @param {*} newInterval 
+ */
 
 function setReadInterval(newInterval) {
   readInterval = newInterval;
 }
 
+/**
+ * 
+ */
 function intervalFunc() {
   console.log('fetchAsync(readHoldingRegisterStartAddress, readHoldingRegistersQuantity)');
   fetchAsync(1, 10);
