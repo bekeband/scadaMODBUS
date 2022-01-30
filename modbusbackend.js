@@ -49,7 +49,7 @@ function ModRTU_CRC(buf, len) {
     // Note, this number has low and high bytes swapped, so use it accordingly (or swap bytes)
     return parseInt(crc);
 }
-/* MODBUF function codes. We use the 03, and 06 fiunctions now. The 03 function's register count is one for simplicity. */
+/* MODBUS function codes. */
 const READ_COILS = 0x01;
 const READ_DISCRETE_INPUTS = 0x02;
 const READ_HOLDING_REGISTERS = 0x03;
@@ -69,7 +69,7 @@ const READ_WRITE_MULTIPLE_REGISTERS = 0x17;
 const READ_FIFO_QUEUE = 0x18;
 const ENCAPSULATED_INTERFACE_TRANSPORT = 0x2B;
 
-const MODBUS_DEVICE_ADDRESS = 1;
+modbusDeviceAddress = 1;
 
 const MAX_READ_TRYCOUNT = 0;
 
@@ -108,34 +108,23 @@ function storeCRCOnBufferTail(buffer, nextData) {
 /**
  * 
  * @param {*} deviceAddress 
+ * @param {*} commandCode 
+ * @param {*} firstWord 
+ * @param {*} secondWord 
+ */
+
+function assemblyTwoWordsCommand(deviceAddress, commandCode, firstWord, secondWord) {
+    nextData = makeCommandBuffer(outBuffer, deviceAddress, commandCode, firstWord, secondWord);
+    storeCRCOnBufferTail(outBuffer, nextData);
+}
+
+/**
+ * @param {*} deviceAddress 
  * @param {*} regAddress 
  * @param {*} value 
  */
 function assemblyWriteRegisterCommand(deviceAddress, regAddress, value) {
     nextData = makeCommandBuffer(outBuffer, deviceAddress, WRITE_SINGLE_REGISTER, regAddress, value);
-    storeCRCOnBufferTail(outBuffer, nextData);
-}
-
-
-/**
- * 
- * @param {*} deviceAddress 
- * @param {*} startAddress 
- * @param {*} quantityRegisters 
- */
-function assemblyReadCoilsCommand(deviceAddress, startAddress, quantityRegisters) {
-    nextData = makeCommandBuffer(outBuffer, deviceAddress, READ_COILS, startAddress, quantityCoils);
-    storeCRCOnBufferTail(outBuffer, nextData);
-}
-
-/**
- * 
- * @param {*} deviceAddress 
- * @param {*} startAddress 
- * @param {*} quantityRegisters 
- */
-function assemblyReadHoldingRegistersCommand(deviceAddress, startAddress, quantityRegisters) {
-    nextData = makeCommandBuffer(outBuffer, deviceAddress, READ_HOLDING_REGISTERS, startAddress, quantityRegisters);
     storeCRCOnBufferTail(outBuffer, nextData);
 }
 
@@ -173,12 +162,29 @@ function processData(readBuffer) {
     return false;
 }
 
-/**App.get get the MODBUS register data. */
+/**App.get get the MODBUS register data. These are read commands. */
 
-app.get('/test/holding/get/:address/:quantity', function (req, res, next) {
+app.get('/:reg_type/:address/:quantity', function (req, res, next) {
 
     p = new Promise((resolve, reject) => {
-        assemblyReadHoldingRegistersCommand(MODBUS_DEVICE_ADDRESS, req.params.address, req.params.quantity);
+        
+        if (req.params.reg_type === "RC") {
+            /**Read coils. */
+            assemblyTwoWordsCommand(modbusDeviceAddress, READ_COILS, req.params.address, req.params.quantity);
+        } else
+        /**Read discrete inputs.  */
+        if (req.params.reg_type === "RDI") {
+            assemblyTwoWordsCommand(modbusDeviceAddress, READ_DISCRETE_INPUTS, req.params.address, req.params.quantity);
+        } else 
+        /**Read input registers. */
+        if (req.params.reg_type === "RIR") {
+            assemblyTwoWordsCommand(modbusDeviceAddress, READ_INPUT_REGISTERS, req.params.address, req.params.quantity);
+        } else         
+        if (req.params.reg_type === "RHR") {
+            /**Read holding registers. */
+            assemblyTwoWordsCommand(modbusDeviceAddress, READ_HOLDING_REGISTERS, req.params.address, req.params.quantity);
+        };
+//        assemblyReadHoldingRegistersCommand(modbusDeviceAddress, req.params.address, req.params.quantity);
 //     console.log("WRITEBUFFER = ", outBuffer);    
 
         /**Write MODBUS outbuffer to serial. */
@@ -228,14 +234,14 @@ app.get('/test/holding/get/:address/:quantity', function (req, res, next) {
 
 });
 
-/**App.put set the MODBUS address register data. */
+/**App.put set the MODBUS address register data. Theses are the write commands.*/
 app.put('/test/holding/set/:address/:value', function (req, res, next) {
 
     console.log('address', req.params.address);
     console.log('value', req.params.value);
 
     p = new Promise((resolve, reject) => {
-        assemblyWriteRegisterCommand(MODBUS_DEVICE_ADDRESS, req.params.address, req.params.value);
+        assemblyWriteRegisterCommand(modbusDeviceAddress, req.params.address, req.params.value);
         console.log("WRITEBUFFER = ", outBuffer);
         /**Write MODBUS outbuffer to serial. */
         port.write(outBuffer);
