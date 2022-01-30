@@ -73,6 +73,40 @@ modbusDeviceAddress = 1;
 
 const MODBUS_ERROR_CODE_SHIFT = 0x80;
 
+function commandItem(commandString, commandCode) {
+    this.commandString = commandString;
+    this.commandCode = commandCode;
+}
+var commandArray =
+    [new commandItem("RC", READ_COILS),
+    new commandItem("RDI", READ_DISCRETE_INPUTS),
+    new commandItem("RHR", READ_HOLDING_REGISTERS),
+    new commandItem("RIR", READ_INPUT_REGISTERS),
+    new commandItem("WSC", WRITE_SINGLE_COIL),
+    new commandItem("WSR", WRITE_SINGLE_REGISTER),
+    new commandItem("RES", READ_EXCEPTION_STATUS),
+    new commandItem("GCE", GET_COMM_EVENT_COUNTER),
+    new commandItem("GCL", GET_COMM_EVENT_LOG),
+    new commandItem("WMC", WRITE_MULTIPLE_COILS),
+    new commandItem("WMR", WRITE_MULTIPLE_REGISTERS),
+    new commandItem("RSI", REPORT_SERVER_ID),
+    new commandItem("RFR", READ_FILE_RECORD),
+    new commandItem("WFR", WRITE_FILE_RECORD),
+    new commandItem("MWR", MASK_WRITE_REGISTER),
+    new commandItem("RWR", READ_WRITE_MULTIPLE_REGISTERS),
+    new commandItem("RFQ", READ_FIFO_QUEUE),
+    new commandItem("EIT", ENCAPSULATED_INTERFACE_TRANSPORT)
+    ];
+
+function getCommandCode(commandName) {
+    commandArray.forEach(element => {
+        console.log(element);
+/*        if (commandName == element.commandString) {
+            return element.commandCode;
+        }*/
+    });
+}
+
 /**
  * @param {*} buffer
  * @param {*} deviceAddress 
@@ -162,28 +196,85 @@ function processData(readBuffer) {
     return false;
 }
 
+/*function readSerial(readData) {
+
+    var dataTable = [];
+    var errorString;
+    if (modbusDeviceAddress != data[0]) {
+
+        res.json("Response with wrong MODBUS address.");
+        res.end();
+    }
+    if (currentModbusCommand === data[1]) {
+
+    } else
+
+        if (currentModbusCommand === (data[1] - MODBUS_ERROR_CODE_SHIFT)) {
+
+            switch (data[2]) {
+                case 01: errorString = "ILLEGAL FUNCTION"; break;
+                case 02: errorString = "ILLEGAL DATA ADDRESS"; break;
+                case 03: errorString = "ILLEGAL DATA VALUE"; break;
+                case 04: errorString = "SERVER DEVICE FAILURE"; break;
+                case 05: errorString = "ACKNOWLEDGE"; break;
+                case 06: errorString = "SERVER DEVICE BUSY"; break;
+                case 08: errorString = "MEMORY PARITY ERROR"; break;
+                case 0x0A: errorString = "GATEWAY PATH UNAVAILABLE"; break;
+                case 0x0B: errorString = "GATEWAY TARGET DEVICE FAILED TO RESPOND"; break;
+            }
+
+            res.json(errorString);
+            res.end();
+
+        } else {
+
+            res.json("Wrong returned MODBUS command byte.")
+            res.end();
+        }
+
+    console.log("data = ", data);
+    var regLength = data[2];
+
+    for (j = 0; j < (regLength / 2); j++) {
+        var valHi = data[3 + (j * 2)];
+        var valLow = data[4 + (j * 2)];
+        var readValue = (valHi * 256) + valLow;
+
+        var obj = {
+            register: +req.params.address + j,
+            value: readValue
+        }
+        dataTable.push(obj);
+
+    }
+    console.log("dataTable = ", dataTable);
+    res.json(dataTable)
+    res.end();
+
+}*/
+
 /**App.get get the MODBUS register data. These are read commands. */
 
 app.get('/:reg_type/:address/:quantity', function (req, res, next) {
     var currentModbusCommand;
     p = new Promise((resolve, reject) => {
 
-        if (req.params.reg_type === "RC") {
-            /**Read coils. */
-            currentModbusCommand = READ_COILS;
-        } else
-            /**Read discrete inputs.  */
-            if (req.params.reg_type === "RDI") {
-                currentModbusCommand = READ_DISCRETE_INPUTS;
-            } else
-                /**Read input registers. */
-                if (req.params.reg_type === "RIR") {
-                    currentModbusCommand = READ_INPUT_REGISTERS;
-                } else
-                    if (req.params.reg_type === "RHR") {
-                        /**Read holding registers. */
-                        currentModbusCommand = READ_HOLDING_REGISTERS;
-                    };
+        currentModbusCommand = getCommandCode(req.params.reg_type);
+
+/*        switch (req.params.reg_type) {
+            case "RC": currentModbusCommand = READ_COILS;
+ 
+                break;
+            case "RDI": currentModbusCommand = READ_DISCRETE_INPUTS;
+ 
+                break;
+            case "RIR": currentModbusCommand = READ_INPUT_REGISTERS;
+
+                break;
+            case "RHR": currentModbusCommand = READ_HOLDING_REGISTERS;
+
+                break;
+        }*/
 
         assemblyTwoWordsCommand(modbusDeviceAddress, currentModbusCommand, req.params.address, req.params.quantity);
         //     console.log("WRITEBUFFER = ", outBuffer);    
@@ -206,6 +297,8 @@ app.get('/:reg_type/:address/:quantity', function (req, res, next) {
         });
     });
 
+    //    p.then(readSerial(data));
+
     p.then((data) => {
 
         //        console.log("READBUFFER AWAIT = ", data);
@@ -214,14 +307,14 @@ app.get('/:reg_type/:address/:quantity', function (req, res, next) {
         var dataTable = [];
         var errorString;
         if (modbusDeviceAddress != data[0]) {
-            /**Response with wrong MODBUS address. */
+
             res.json("Response with wrong MODBUS address.");
             res.end();
         }
         if (currentModbusCommand === data[1]) {
 
         } else
-            /**Whether error from return. */
+
             if (currentModbusCommand === (data[1] - MODBUS_ERROR_CODE_SHIFT)) {
 
                 switch (data[2]) {
@@ -240,7 +333,7 @@ app.get('/:reg_type/:address/:quantity', function (req, res, next) {
                 res.end();
 
             } else {
-                /**Wrong returned MODBUS command byte.  */
+
                 res.json("Wrong returned MODBUS command byte.")
                 res.end();
             }
@@ -269,23 +362,45 @@ app.get('/:reg_type/:address/:quantity', function (req, res, next) {
 });
 
 /**App.put set the MODBUS address register data. Theses are the write commands.*/
-app.put('/test/holding/set/:address/:value', function (req, res, next) {
+app.put('/:reg_type/:address/:value', function (req, res, next) {
 
     console.log('address', req.params.address);
     console.log('value', req.params.value);
 
+    var currentModbusCommand;
     p = new Promise((resolve, reject) => {
-        assemblyWriteRegisterCommand(modbusDeviceAddress, req.params.address, req.params.value);
-        console.log("WRITEBUFFER = ", outBuffer);
-        /**Write MODBUS outbuffer to serial. */
-        port.write(outBuffer);
-        port.once('error', (err) => {
-            reject(err);
-        });
-    });
 
-    res.end();
-})
+        switch (req.params.reg_type) {
+            case "WSC": currentModbusCommand = WRITE_SINGLE_COIL;
+                /**Write sigle coil */
+                break;
+            case "WSR": currentModbusCommand = WRITE_SINGLE_REGISTER;
+                /**Write sigle register.  */
+                break;
+            case "WMC": currentModbusCommand = WRITE_MULTIPLE_COILS;
+                /**WRite multiple coils. */
+                break;
+            case "WMR": currentModbusCommand = WRITE_MULTIPLE_REGISTERS;
+                /**Read holding registers. */
+                break;
+        }
+
+
+        p = new Promise((resolve, reject) => {
+            assemblyWriteRegisterCommand(modbusDeviceAddress, req.params.address, req.params.value);
+            console.log("WRITEBUFFER = ", outBuffer);
+            /**Write MODBUS outbuffer to serial. */
+            port.write(outBuffer);
+            port.once('error', (err) => {
+                reject(err);
+            });
+        });
+
+        res.end();
+    })
+
+
+});
 
 app.listen(PORT, function (err) {
     if (err) console.log(err);
