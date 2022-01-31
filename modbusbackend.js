@@ -1,5 +1,6 @@
 
 
+
 var express = require('express');
 const { json } = require('express/lib/response');
 var app = express();
@@ -24,6 +25,7 @@ const port = new SerialPort('COM2')
  */
 
 const MODBUS_OUT_BUFFER_SIZE = 50;
+
 /** 
  * Outbuffer to serial port 
  * */
@@ -111,6 +113,7 @@ var errorArray =
         new commandItem("GATEWAY TARGET DEVICE FAILED TO RESPOND", 0x0B)
     ];
 
+
 /**
  * 
  * @param {*} errorCode 
@@ -121,7 +124,7 @@ function getErrorString(errorCode) {
     var findedString = "N/A";
     errorArray.forEach(element => {
         if (errorCode == element.commandCode) {
-//            console.log("Hit code = ", element.commandCode);
+            //            console.log("Hit code = ", element.commandCode);
             findedString = element.commandString;
         }
     });
@@ -138,7 +141,7 @@ function getCommandCode(commandName) {
     var findedCode = -1;
     commandArray.forEach(element => {
         if (commandName == element.commandString) {
-//            console.log("Hit code = ", element.commandCode);
+            //            console.log("Hit code = ", element.commandCode);
             findedCode = element.commandCode;
         }
     });
@@ -190,16 +193,6 @@ function assemblyTwoWordsCommand(deviceAddress, commandCode, firstWord, secondWo
     storeCRCOnBufferTail(outBuffer, nextData);
 }
 
-/**
- * @param {*} deviceAddress 
- * @param {*} regAddress 
- * @param {*} value 
- */
-function assemblyWriteRegisterCommand(deviceAddress, regAddress, value) {
-    nextData = makeCommandBuffer(outBuffer, deviceAddress, WRITE_SINGLE_REGISTER, regAddress, value);
-    storeCRCOnBufferTail(outBuffer, nextData);
-}
-
 // Open errors will be emitted as an error event
 port.on('error', function (err) {
     console.log('Error: ', err.message)
@@ -248,17 +241,13 @@ app.get('/:reg_type/:address/:quantity', function (req, res, next) {
         /**Write MODBUS outbuffer to serial. */
         port.write(outBuffer);
 
-        /**Read the answer.  */
-        port.once('data', (data) => {
-            /**Process the reading datas. */
+        port.on('data', (data) => {
             if (processData(data)) {
                 resolve(data);
-
             }
-
         });
 
-        port.once('error', (err) => {
+        port.on('error', (err) => {
             reject(err);
         });
     });
@@ -325,82 +314,75 @@ app.put('/:reg_type/:address/:value', function (req, res, next) {
     var currentModbusCommand;
     p = new Promise((resolve, reject) => {
 
-        switch (req.params.reg_type) {
-            case "WSC": currentModbusCommand = WRITE_SINGLE_COIL;
-                /**Write sigle coil */
-                break;
-            case "WSR": currentModbusCommand = WRITE_SINGLE_REGISTER;
-                /**Write sigle register.  */
-                break;
-            case "WMC": currentModbusCommand = WRITE_MULTIPLE_COILS;
-                /**WRite multiple coils. */
-                break;
-            case "WMR": currentModbusCommand = WRITE_MULTIPLE_REGISTERS;
-                /**Read holding registers. */
-                break;
-        }
+        currentModbusCommand = getCommandCode(req.params.reg_type);
 
+        assemblyTwoWordsCommand(modbusDeviceAddress, currentModbusCommand, req.params.address, req.params.value);
+        console.log("WRITEBUFFER = ", outBuffer);
 
-        p = new Promise((resolve, reject) => {
-            assemblyWriteRegisterCommand(modbusDeviceAddress, req.params.address, req.params.value);
-            console.log("WRITEBUFFER = ", outBuffer);
-            /**Write MODBUS outbuffer to serial. */
-            port.write(outBuffer);
-            port.once('error', (err) => {
-                reject(err);
-            });
-        });
-        p.then((data) => {
+        /**Write MODBUS outbuffer to serial. */
+        port.write(outBuffer);
 
-            //        console.log("READBUFFER AWAIT = ", data);
-            //        console.log('address', req.params.address);
-    
-            var dataTable = [];
-            var errorString;
-            if (modbusDeviceAddress != data[0]) {
-    
-                res.json("Response with wrong MODBUS address.");
-                res.end();
+        /**Read the answer.  */
+        port.on('data', (data) => {
+            /**Process the reading datas. */
+            console.log("DATALOG = ", data.toString(), ", SIZE = ", data.toString().len);
+            if (processData(data)) {
+                resolve(data);
             }
-            if (currentModbusCommand === data[1]) {
-    
-            } else
-    
-                if (currentModbusCommand === (data[1] - MODBUS_ERROR_CODE_SHIFT)) {
-                    errorString = getErrorString(data[2]);
-                    res.json(errorString);
-                    res.end();
-                    return;
-                } else {
-    
-                    res.json("Wrong returned MODBUS command byte.")
-                    res.end();
-                    return;
-                }
-    
-            console.log("data = ", data);
-            var regLength = data[2];
-    
-            for (j = 0; j < (regLength / 2); j++) {
-                var valHi = data[3 + (j * 2)];
-                var valLow = data[4 + (j * 2)];
-                var readValue = (valHi * 256) + valLow;
-    
-                var obj = {
-                    register: +req.params.address + j,
-                    value: readValue
-                }
-                dataTable.push(obj);
-    
-            }
-            console.log("dataTable = ", dataTable);
-            res.json(dataTable)
-            res.end();
-    
+
         });
-            res.end();
+
+        port.on('error', (err) => {
+            reject(err);
+        });
     })
+    p.then((data) => {
 
+
+        var dataTable = [];
+        var errorString;
+
+        if (modbusDeviceAddress != data[0]) {
+
+            res.json("Response with wrong MODBUS address.");
+            res.end();
+        }
+        if (currentModbusCommand === data[1]) {
+
+        } else
+
+            if (currentModbusCommand === (data[1] - MODBUS_ERROR_CODE_SHIFT)) {
+                errorString = getErrorString(data[2]);
+                res.json(errorString);
+                res.end();
+                return;
+            } else {
+
+                res.json("Wrong returned MODBUS command byte.")
+                res.end();
+                return;
+            }
+
+        console.log("data = ", data);
+        var regLength = data[2];
+
+        for (j = 0; j < (regLength / 2); j++) {
+            var valHi = data[3 + (j * 2)];
+            var valLow = data[4 + (j * 2)];
+            var readValue = (valHi * 256) + valLow;
+
+            var obj = {
+                register: +req.params.address + j,
+                value: readValue
+            }
+            dataTable.push(obj);
+
+        }
+        console.log("dataTable = ", dataTable);
+        res.json(dataTable)
+        res.end();
+
+    });
 
 });
 
