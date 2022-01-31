@@ -98,13 +98,51 @@ var commandArray =
     new commandItem("EIT", ENCAPSULATED_INTERFACE_TRANSPORT)
     ];
 
-function getCommandCode(commandName) {
-    commandArray.forEach(element => {
-        console.log(element);
-/*        if (commandName == element.commandString) {
-            return element.commandCode;
-        }*/
+var errorArray =
+    [
+        new commandItem("ILLEGAL FUNCTION", 0x01),
+        new commandItem("ILLEGAL DATA ADDRESS", 0x02),
+        new commandItem("ILLEGAL DATA VALUE", 0x03),
+        new commandItem("SERVER DEVICE FAILURE", 0x04),
+        new commandItem("ACKNOWLEDGE", 0x05),
+        new commandItem("SERVER DEVICE BUSY", 0x06),
+        new commandItem("MEMORY PARITY ERROR", 0x08),
+        new commandItem("GATEWAY PATH UNAVAILABLE", 0x0A),
+        new commandItem("GATEWAY TARGET DEVICE FAILED TO RESPOND", 0x0B)
+    ];
+
+/**
+ * 
+ * @param {*} errorCode 
+ * @returns 
+ */
+
+function getErrorString(errorCode) {
+    var findedString = "N/A";
+    errorArray.forEach(element => {
+        if (errorCode == element.commandCode) {
+//            console.log("Hit code = ", element.commandCode);
+            findedString = element.commandString;
+        }
     });
+    return findedString;
+}
+
+/**
+ * 
+ * @param {*} commandName 
+ * @returns 
+ */
+
+function getCommandCode(commandName) {
+    var findedCode = -1;
+    commandArray.forEach(element => {
+        if (commandName == element.commandString) {
+//            console.log("Hit code = ", element.commandCode);
+            findedCode = element.commandCode;
+        }
+    });
+    return findedCode;
 }
 
 /**
@@ -196,63 +234,6 @@ function processData(readBuffer) {
     return false;
 }
 
-/*function readSerial(readData) {
-
-    var dataTable = [];
-    var errorString;
-    if (modbusDeviceAddress != data[0]) {
-
-        res.json("Response with wrong MODBUS address.");
-        res.end();
-    }
-    if (currentModbusCommand === data[1]) {
-
-    } else
-
-        if (currentModbusCommand === (data[1] - MODBUS_ERROR_CODE_SHIFT)) {
-
-            switch (data[2]) {
-                case 01: errorString = "ILLEGAL FUNCTION"; break;
-                case 02: errorString = "ILLEGAL DATA ADDRESS"; break;
-                case 03: errorString = "ILLEGAL DATA VALUE"; break;
-                case 04: errorString = "SERVER DEVICE FAILURE"; break;
-                case 05: errorString = "ACKNOWLEDGE"; break;
-                case 06: errorString = "SERVER DEVICE BUSY"; break;
-                case 08: errorString = "MEMORY PARITY ERROR"; break;
-                case 0x0A: errorString = "GATEWAY PATH UNAVAILABLE"; break;
-                case 0x0B: errorString = "GATEWAY TARGET DEVICE FAILED TO RESPOND"; break;
-            }
-
-            res.json(errorString);
-            res.end();
-
-        } else {
-
-            res.json("Wrong returned MODBUS command byte.")
-            res.end();
-        }
-
-    console.log("data = ", data);
-    var regLength = data[2];
-
-    for (j = 0; j < (regLength / 2); j++) {
-        var valHi = data[3 + (j * 2)];
-        var valLow = data[4 + (j * 2)];
-        var readValue = (valHi * 256) + valLow;
-
-        var obj = {
-            register: +req.params.address + j,
-            value: readValue
-        }
-        dataTable.push(obj);
-
-    }
-    console.log("dataTable = ", dataTable);
-    res.json(dataTable)
-    res.end();
-
-}*/
-
 /**App.get get the MODBUS register data. These are read commands. */
 
 app.get('/:reg_type/:address/:quantity', function (req, res, next) {
@@ -261,23 +242,8 @@ app.get('/:reg_type/:address/:quantity', function (req, res, next) {
 
         currentModbusCommand = getCommandCode(req.params.reg_type);
 
-/*        switch (req.params.reg_type) {
-            case "RC": currentModbusCommand = READ_COILS;
- 
-                break;
-            case "RDI": currentModbusCommand = READ_DISCRETE_INPUTS;
- 
-                break;
-            case "RIR": currentModbusCommand = READ_INPUT_REGISTERS;
-
-                break;
-            case "RHR": currentModbusCommand = READ_HOLDING_REGISTERS;
-
-                break;
-        }*/
-
         assemblyTwoWordsCommand(modbusDeviceAddress, currentModbusCommand, req.params.address, req.params.quantity);
-        //     console.log("WRITEBUFFER = ", outBuffer);    
+        //  console.log("WRITEBUFFER = ", outBuffer);    
 
         /**Write MODBUS outbuffer to serial. */
         port.write(outBuffer);
@@ -316,26 +282,15 @@ app.get('/:reg_type/:address/:quantity', function (req, res, next) {
         } else
 
             if (currentModbusCommand === (data[1] - MODBUS_ERROR_CODE_SHIFT)) {
-
-                switch (data[2]) {
-                    case 01: errorString = "ILLEGAL FUNCTION"; break;
-                    case 02: errorString = "ILLEGAL DATA ADDRESS"; break;
-                    case 03: errorString = "ILLEGAL DATA VALUE"; break;
-                    case 04: errorString = "SERVER DEVICE FAILURE"; break;
-                    case 05: errorString = "ACKNOWLEDGE"; break;
-                    case 06: errorString = "SERVER DEVICE BUSY"; break;
-                    case 08: errorString = "MEMORY PARITY ERROR"; break;
-                    case 0x0A: errorString = "GATEWAY PATH UNAVAILABLE"; break;
-                    case 0x0B: errorString = "GATEWAY TARGET DEVICE FAILED TO RESPOND"; break;
-                }
-
+                errorString = getErrorString(data[2]);
                 res.json(errorString);
                 res.end();
-
+                return;
             } else {
 
                 res.json("Wrong returned MODBUS command byte.")
                 res.end();
+                return;
             }
 
         console.log("data = ", data);
@@ -395,8 +350,55 @@ app.put('/:reg_type/:address/:value', function (req, res, next) {
                 reject(err);
             });
         });
+        p.then((data) => {
 
-        res.end();
+            //        console.log("READBUFFER AWAIT = ", data);
+            //        console.log('address', req.params.address);
+    
+            var dataTable = [];
+            var errorString;
+            if (modbusDeviceAddress != data[0]) {
+    
+                res.json("Response with wrong MODBUS address.");
+                res.end();
+            }
+            if (currentModbusCommand === data[1]) {
+    
+            } else
+    
+                if (currentModbusCommand === (data[1] - MODBUS_ERROR_CODE_SHIFT)) {
+                    errorString = getErrorString(data[2]);
+                    res.json(errorString);
+                    res.end();
+                    return;
+                } else {
+    
+                    res.json("Wrong returned MODBUS command byte.")
+                    res.end();
+                    return;
+                }
+    
+            console.log("data = ", data);
+            var regLength = data[2];
+    
+            for (j = 0; j < (regLength / 2); j++) {
+                var valHi = data[3 + (j * 2)];
+                var valLow = data[4 + (j * 2)];
+                var readValue = (valHi * 256) + valLow;
+    
+                var obj = {
+                    register: +req.params.address + j,
+                    value: readValue
+                }
+                dataTable.push(obj);
+    
+            }
+            console.log("dataTable = ", dataTable);
+            res.json(dataTable)
+            res.end();
+    
+        });
+            res.end();
     })
 
 
