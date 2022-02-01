@@ -11,6 +11,7 @@ app.use(cors());
 
 /* Serial port open */
 const SerialPort = require('serialport');
+const util = require('util');
 
 SerialPort.list().then(
 
@@ -30,7 +31,7 @@ const MODBUS_OUT_BUFFER_SIZE = 50;
  * Outbuffer to serial port 
  * */
 
-const outBuffer = Buffer.alloc(MODBUS_OUT_BUFFER_SIZE);
+const outBuffer = []; // = Buffer.alloc(MODBUS_OUT_BUFFER_SIZE);
 
 // Compute the MODBUS RTU CRC
 function ModRTU_CRC(buf, len) {
@@ -324,12 +325,14 @@ app.put('/:reg_type/:address/:value', function (req, res, next) {
 
         /**Read the answer.  */
         port.on('data', (data) => {
-            /**Process the reading datas. */
-            console.log("DATALOG = ", data.toString(), ", SIZE = ", data.toString().len);
-            if (processData(data)) {
-                resolve(data);
-            }
 
+            if (util.isDeepStrictEqual(outBuffer, data))  {
+                console.log("Result is the some the outBuffer");
+
+            } else {
+                console.log("Result data doesn't same the outBuffer");
+            }
+            resolve(data);
         });
 
         port.on('error', (err) => {
