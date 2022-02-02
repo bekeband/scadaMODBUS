@@ -30,7 +30,7 @@ const MODBUS_OUT_BUFFER_SIZE = 50;
  * Outbuffer to serial port 
  * */
 
-const outBuffer = Buffer.alloc(MODBUS_OUT_BUFFER_SIZE);
+const outBuffer = []; // = Buffer.alloc(MODBUS_OUT_BUFFER_SIZE);
 
 // Compute the MODBUS RTU CRC
 function ModRTU_CRC(buf, len) {
@@ -320,12 +320,14 @@ app.put('/:reg_type/:address/:value', function (req, res, next) {
         console.log("WRITEBUFFER = ", outBuffer);
 
         /**Write MODBUS outbuffer to serial. */
-        port.write(outBuffer);
+        port.write(outBuffer, (error, bytesWritten) => {
+            console.log("ERROR = ", error);
+            console.log("Write bytes = ", bytesWritten);
+        });
+        
 
         /**Read the answer.  */
         port.on('data', (data) => {
-            /**Process the reading datas. */
-            console.log("DATALOG = ", data.toString(), ", SIZE = ", data.toString().len);
             if (processData(data)) {
                 resolve(data);
             }
