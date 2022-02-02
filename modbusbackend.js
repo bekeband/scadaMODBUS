@@ -228,6 +228,32 @@ function processData(readBuffer) {
     return false;
 }
 
+/**
+ * 
+ * @param {*} data 
+ * @param {*} req 
+ * @returns 
+ */
+
+function makeDataTable(data, req) {
+    var dataTable = [];
+    console.log("data = ", data);
+    var regLength = data[2];
+
+    for (j = 0; j < (regLength / 2); j++) {
+        var valHi = data[3 + (j * 2)];
+        var valLow = data[4 + (j * 2)];
+        var readValue = (valHi * 256) + valLow;
+
+        var obj = {
+            register: +req.params.address + j,
+            value: readValue
+        }
+        dataTable.push(obj);
+    }
+    return dataTable;
+}
+
 /**App.get get the MODBUS register data. These are read commands. */
 
 app.get('/:reg_type/:address/:quantity', function (req, res, next) {
@@ -283,21 +309,8 @@ app.get('/:reg_type/:address/:quantity', function (req, res, next) {
                 return;
             }
 
-        console.log("data = ", data);
-        var regLength = data[2];
+        dataTable = makeDataTable(data, req);
 
-        for (j = 0; j < (regLength / 2); j++) {
-            var valHi = data[3 + (j * 2)];
-            var valLow = data[4 + (j * 2)];
-            var readValue = (valHi * 256) + valLow;
-
-            var obj = {
-                register: +req.params.address + j,
-                value: readValue
-            }
-            dataTable.push(obj);
-
-        }
         console.log("dataTable = ", dataTable);
         res.json(dataTable)
         res.end();
@@ -305,6 +318,19 @@ app.get('/:reg_type/:address/:quantity', function (req, res, next) {
     });
 
 });
+
+function isEqualBuffers(input1, input2) {
+    result = false;
+    if ((input1.length === input2.length) && (input1.length > 0)) {
+        for (i = 0; i < input1.length - 1; i++) {
+            if (input1[i] === input2[i]) {
+                result = true;
+            }
+        }
+    }
+    return result;
+}
+
 
 /**App.put set the MODBUS address register data. Theses are the write commands.*/
 app.put('/:reg_type/:address/:value', function (req, res, next) {
@@ -325,17 +351,10 @@ app.put('/:reg_type/:address/:value', function (req, res, next) {
             console.log("ERROR = ", error);
             console.log("Write bytes = ", bytesWritten);
         });
-        
+
 
         /**Read the answer.  */
         port.on('data', (data) => {
-
-            if (util.isDeepStrictEqual(outBuffer, data))  {
-                console.log("Result is the some the outBuffer");
-
-            } else {
-                console.log("Result data doesn't same the outBuffer");
-            }
             resolve(data);
         });
 
@@ -345,48 +364,13 @@ app.put('/:reg_type/:address/:value', function (req, res, next) {
     })
     p.then((data) => {
 
-
-        var dataTable = [];
-        var errorString;
-
-        if (modbusDeviceAddress != data[0]) {
-
-            res.json("Response with wrong MODBUS address.");
-            res.end();
+        if (isEqualBuffers(outBuffer, data)) {
+            res.json("Result is the same the outBuffer")
+        } else {
+            res.json("Result data doesn't same the outBuffer");
         }
-        if (currentModbusCommand === data[1]) {
-
-        } else
-
-            if (currentModbusCommand === (data[1] - MODBUS_ERROR_CODE_SHIFT)) {
-                errorString = getErrorString(data[2]);
-                res.json(errorString);
-                res.end();
-                return;
-            } else {
-
-                res.json("Wrong returned MODBUS command byte.")
-                res.end();
-                return;
-            }
-
-        console.log("data = ", data);
-        var regLength = data[2];
-
-        for (j = 0; j < (regLength / 2); j++) {
-            var valHi = data[3 + (j * 2)];
-            var valLow = data[4 + (j * 2)];
-            var readValue = (valHi * 256) + valLow;
-
-            var obj = {
-                register: +req.params.address + j,
-                value: readValue
-            }
-            dataTable.push(obj);
-
-        }
-        console.log("dataTable = ", dataTable);
-        res.json(dataTable)
+//        console.log("dataTable = ", dataTable);
+//        res.json(dataTable)
         res.end();
 
     });
