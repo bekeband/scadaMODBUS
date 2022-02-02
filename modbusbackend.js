@@ -11,6 +11,7 @@ app.use(cors());
 
 /* Serial port open */
 const SerialPort = require('serialport');
+const util = require('util');
 
 SerialPort.list().then(
 
@@ -328,10 +329,14 @@ app.put('/:reg_type/:address/:value', function (req, res, next) {
 
         /**Read the answer.  */
         port.on('data', (data) => {
-            if (processData(data)) {
-                resolve(data);
-            }
 
+            if (util.isDeepStrictEqual(outBuffer, data))  {
+                console.log("Result is the some the outBuffer");
+
+            } else {
+                console.log("Result data doesn't same the outBuffer");
+            }
+            resolve(data);
         });
 
         port.on('error', (err) => {
