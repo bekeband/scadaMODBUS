@@ -150,6 +150,25 @@ function getCommandCode(commandName) {
 }
 
 /**
+ * 
+ * @param {*} input1 
+ * @param {*} input2 
+ * @returns 
+ */
+
+function isEqualBuffers(input1, input2) {
+    result = false;
+    if ((input1.length === input2.length) && (input1.length > 0)) {
+        for (i = 0; i < input1.length - 1; i++) {
+            if (input1[i] === input2[i]) {
+                result = true;
+            }
+        }
+    }
+    return result;
+}
+
+/**
  * @param {*} buffer
  * @param {*} deviceAddress 
  * @param {*} functionCode 
@@ -254,6 +273,14 @@ function makeDataTable(data, req) {
     return dataTable;
 }
 
+function getErrorCodeString(currentModbusCommand, data) {
+    if ((data.length >= 2) && (currentModbusCommand === (data[1] - MODBUS_ERROR_CODE_SHIFT))) {
+        return getErrorString(data[2]);
+    } else {
+        return "Unknown error.";
+    }
+}
+
 /**App.get get the MODBUS register data. These are read commands. */
 
 app.get('/:reg_type/:address/:quantity', function (req, res, next) {
@@ -295,20 +322,12 @@ app.get('/:reg_type/:address/:quantity', function (req, res, next) {
         }
         if (currentModbusCommand === data[1]) {
 
-        } else
-
-            if (currentModbusCommand === (data[1] - MODBUS_ERROR_CODE_SHIFT)) {
-                errorString = getErrorString(data[2]);
-                res.json(errorString);
-                res.end();
-                return;
-            } else {
-
-                res.json("Wrong returned MODBUS command byte.")
-                res.end();
-                return;
-            }
-
+        } else {
+            errorString = getErrorCodeString(currentModbusCommand, data);
+            res.json(errorString);
+            res.end();
+            return;
+        };
         dataTable = makeDataTable(data, req);
 
         console.log("dataTable = ", dataTable);
@@ -318,18 +337,6 @@ app.get('/:reg_type/:address/:quantity', function (req, res, next) {
     });
 
 });
-
-function isEqualBuffers(input1, input2) {
-    result = false;
-    if ((input1.length === input2.length) && (input1.length > 0)) {
-        for (i = 0; i < input1.length - 1; i++) {
-            if (input1[i] === input2[i]) {
-                result = true;
-            }
-        }
-    }
-    return result;
-}
 
 
 /**App.put set the MODBUS address register data. Theses are the write commands.*/
@@ -363,14 +370,12 @@ app.put('/:reg_type/:address/:value', function (req, res, next) {
         });
     })
     p.then((data) => {
-
         if (isEqualBuffers(outBuffer, data)) {
-            res.json("Result is the same the outBuffer")
+            res.json("Writing data OK.");
         } else {
-            res.json("Result data doesn't same the outBuffer");
-        }
-//        console.log("dataTable = ", dataTable);
-//        res.json(dataTable)
+            errorString = getErrorCodeString(currentModbusCommand, data);
+            res.json(errorString)
+        }       
         res.end();
 
     });
