@@ -127,23 +127,23 @@ http://localhost:3000/RIR/2/4
         "value": 59278
     }
 
-### Test the put command. 
+### Test the write commands. 
 - run the <a href="https://www.postman.com/" target="_blank"> postman </a> application.
-- Type the postman the get command:
-http://localhost:3000/test/holding/set/0/67
+- Write Single Coil 5, to 1. To setting bit the value have to be any greater then 0, and to reset the value have to be 0.
+http://localhost:3000/WSC/5/02  
+
+- The Postman result is:
+
+"Writing data OK."
 
 
-![run modbusbackend.png.](resources/Postman_put.png)
+- Write Single Register 9 to 856. It will write the 9th register with 856dec data.
+- Type the postman the get command 
+http://localhost:3000/WSR/9/856  
 
-- result of the put command:
+- The Postman result is:
 
-![run modbusbackend.png.](resources/Modbus_client_put_result.png)
-
-You can see the writing Modbus data (67) on the first Modbus register.
-
-[Test HTML mode.](HTMLTest.md)
-
-
+"Writing data OK."
 
 
 

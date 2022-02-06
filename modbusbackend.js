@@ -1,7 +1,7 @@
 
 
-
 var express = require('express');
+var router = express.Router();
 const { json } = require('express/lib/response');
 var app = express();
 var PORT = 3000;
@@ -254,7 +254,7 @@ function processData(readBuffer) {
  * @returns 
  */
 
- function makeByteDataTable(data, req) {
+function makeByteDataTable(data, req) {
     var dataTable = [];
     console.log("data = ", data);
     var regLength = data[2];
@@ -368,6 +368,7 @@ app.get('/:reg_type/:address/:quantity', function (req, res, next) {
 /**App.put set the MODBUS address register data. Theses are the write commands.*/
 app.put('/:reg_type/:address/:value', function (req, res, next) {
 
+    var newValue;
     console.log('address', req.params.address);
     console.log('value', req.params.value);
 
@@ -375,8 +376,13 @@ app.put('/:reg_type/:address/:value', function (req, res, next) {
     p = new Promise((resolve, reject) => {
 
         currentModbusCommand = getCommandCode(req.params.reg_type);
+        if (currentModbusCommand === WRITE_SINGLE_COIL) {
+            newValue = (req.params.value >= 1) ? 0x0FF00 : 0x0000;
+        } else {
+            newValue = req.params.value;
+        }
 
-        assemblyTwoWordsCommand(modbusDeviceAddress, currentModbusCommand, req.params.address, req.params.value);
+        assemblyTwoWordsCommand(modbusDeviceAddress, currentModbusCommand, req.params.address, newValue);
         console.log("WRITEBUFFER = ", outBuffer);
 
         /**Write MODBUS outbuffer to serial. */
@@ -401,7 +407,7 @@ app.put('/:reg_type/:address/:value', function (req, res, next) {
         } else {
             errorString = getErrorCodeString(currentModbusCommand, data);
             res.json(errorString)
-        }       
+        }
         res.end();
 
     });
