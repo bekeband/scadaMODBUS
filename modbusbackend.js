@@ -254,7 +254,31 @@ function processData(readBuffer) {
  * @returns 
  */
 
-function makeDataTable(data, req) {
+ function makeByteDataTable(data, req) {
+    var dataTable = [];
+    console.log("data = ", data);
+    var regLength = data[2];
+
+    for (j = 0; j < (regLength); j++) {
+        var readValue = data[3 + (j)];
+
+        var obj = {
+            register: +req.params.address + j,
+            value: readValue
+        }
+        dataTable.push(obj);
+    }
+    return dataTable;
+}
+
+/**
+ * 
+ * @param {*} data 
+ * @param {*} req 
+ * @returns 
+ */
+
+function makeWordDataTable(data, req) {
     var dataTable = [];
     console.log("data = ", data);
     var regLength = data[2];
@@ -322,18 +346,20 @@ app.get('/:reg_type/:address/:quantity', function (req, res, next) {
         }
         if (currentModbusCommand === data[1]) {
 
+            if (currentModbusCommand <= READ_DISCRETE_INPUTS) {
+                dataTable = makeByteDataTable(data, req);
+            } else {
+                dataTable = makeWordDataTable(data, req);
+            }
+
+            console.log("dataTable = ", dataTable);
+            res.json(dataTable)
+            res.end();
         } else {
             errorString = getErrorCodeString(currentModbusCommand, data);
             res.json(errorString);
             res.end();
-            return;
         };
-        dataTable = makeDataTable(data, req);
-
-        console.log("dataTable = ", dataTable);
-        res.json(dataTable)
-        res.end();
-
     });
 
 });
