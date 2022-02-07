@@ -365,9 +365,9 @@ app.put('/:reg_type/:address/:value', function (req, res, next) {
     p.then((data) => {
 
         if (isEqualBuffers(outBuffer, data)) {
-            res.json("Result is the same the outBuffer")
+            res.json("Writing command OK.")
         } else {
-            res.json("Result data doesn't same the outBuffer");
+            res.json("Writing command error.");
         }
 //        console.log("dataTable = ", dataTable);
 //        res.json(dataTable)
