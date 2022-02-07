@@ -1,7 +1,7 @@
 
 
-
 var express = require('express');
+var router = express.Router();
 const { json } = require('express/lib/response');
 var app = express();
 var PORT = 3000;
@@ -150,6 +150,25 @@ function getCommandCode(commandName) {
 }
 
 /**
+ * 
+ * @param {*} input1 
+ * @param {*} input2 
+ * @returns 
+ */
+
+function isEqualBuffers(input1, input2) {
+    result = false;
+    if ((input1.length === input2.length) && (input1.length > 0)) {
+        for (i = 0; i < input1.length - 1; i++) {
+            if (input1[i] === input2[i]) {
+                result = true;
+            }
+        }
+    }
+    return result;
+}
+
+/**
  * @param {*} buffer
  * @param {*} deviceAddress 
  * @param {*} functionCode 
@@ -235,7 +254,31 @@ function processData(readBuffer) {
  * @returns 
  */
 
-function makeDataTable(data, req) {
+function makeByteDataTable(data, req) {
+    var dataTable = [];
+    console.log("data = ", data);
+    var regLength = data[2];
+
+    for (j = 0; j < (regLength); j++) {
+        var readValue = data[3 + (j)];
+
+        var obj = {
+            register: +req.params.address + j,
+            value: readValue
+        }
+        dataTable.push(obj);
+    }
+    return dataTable;
+}
+
+/**
+ * 
+ * @param {*} data 
+ * @param {*} req 
+ * @returns 
+ */
+
+function makeWordDataTable(data, req) {
     var dataTable = [];
     console.log("data = ", data);
     var regLength = data[2];
@@ -252,6 +295,14 @@ function makeDataTable(data, req) {
         dataTable.push(obj);
     }
     return dataTable;
+}
+
+function getErrorCodeString(currentModbusCommand, data) {
+    if ((data.length >= 2) && (currentModbusCommand === (data[1] - MODBUS_ERROR_CODE_SHIFT))) {
+        return getErrorString(data[2]);
+    } else {
+        return "Unknown error.";
+    }
 }
 
 /**App.get get the MODBUS register data. These are read commands. */
@@ -295,46 +346,29 @@ app.get('/:reg_type/:address/:quantity', function (req, res, next) {
         }
         if (currentModbusCommand === data[1]) {
 
-        } else
-
-            if (currentModbusCommand === (data[1] - MODBUS_ERROR_CODE_SHIFT)) {
-                errorString = getErrorString(data[2]);
-                res.json(errorString);
-                res.end();
-                return;
+            if (currentModbusCommand <= READ_DISCRETE_INPUTS) {
+                dataTable = makeByteDataTable(data, req);
             } else {
-
-                res.json("Wrong returned MODBUS command byte.")
-                res.end();
-                return;
+                dataTable = makeWordDataTable(data, req);
             }
 
-        dataTable = makeDataTable(data, req);
-
-        console.log("dataTable = ", dataTable);
-        res.json(dataTable)
-        res.end();
-
+            console.log("dataTable = ", dataTable);
+            res.json(dataTable)
+            res.end();
+        } else {
+            errorString = getErrorCodeString(currentModbusCommand, data);
+            res.json(errorString);
+            res.end();
+        };
     });
 
 });
-
-function isEqualBuffers(input1, input2) {
-    result = false;
-    if ((input1.length === input2.length) && (input1.length > 0)) {
-        for (i = 0; i < input1.length - 1; i++) {
-            if (input1[i] === input2[i]) {
-                result = true;
-            }
-        }
-    }
-    return result;
-}
 
 
 /**App.put set the MODBUS address register data. Theses are the write commands.*/
 app.put('/:reg_type/:address/:value', function (req, res, next) {
 
+    var newValue;
     console.log('address', req.params.address);
     console.log('value', req.params.value);
 
@@ -342,8 +376,13 @@ app.put('/:reg_type/:address/:value', function (req, res, next) {
     p = new Promise((resolve, reject) => {
 
         currentModbusCommand = getCommandCode(req.params.reg_type);
+        if (currentModbusCommand === WRITE_SINGLE_COIL) {
+            newValue = (req.params.value >= 1) ? 0x0FF00 : 0x0000;
+        } else {
+            newValue = req.params.value;
+        }
 
-        assemblyTwoWordsCommand(modbusDeviceAddress, currentModbusCommand, req.params.address, req.params.value);
+        assemblyTwoWordsCommand(modbusDeviceAddress, currentModbusCommand, req.params.address, newValue);
         console.log("WRITEBUFFER = ", outBuffer);
 
         /**Write MODBUS outbuffer to serial. */
@@ -363,14 +402,12 @@ app.put('/:reg_type/:address/:value', function (req, res, next) {
         });
     })
     p.then((data) => {
-
         if (isEqualBuffers(outBuffer, data)) {
-            res.json("Writing command OK.")
+            res.json("Writing data OK.");
         } else {
-            res.json("Writing command error.");
+            errorString = getErrorCodeString(currentModbusCommand, data);
+            res.json(errorString)
         }
-//        console.log("dataTable = ", dataTable);
-//        res.json(dataTable)
         res.end();
 
     });
