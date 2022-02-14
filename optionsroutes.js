@@ -6,20 +6,20 @@ const serialPort = require('./serialport');
 
 /**Getting serial port status.  */
 controller.get('/status', (req, res) => {
-    
+
     var dataTable = [];
 
     var obj = {
-        "port":serialPort.portName,
-        "baud":serialPort.baudRate,
-        "dataBits":serialPort.dataBits,
-        "stopBits":serialPort.stopBits,
-        "parity":serialPort.parity,
-        "rtscts":serialPort.rtscts,
-        "xon":serialPort.xon,
-        "xoff":serialPort.xoff,
-        "xany":serialPort.xany,
-        "isOpened":serialPort.isOpenPort()
+        "port": serialPort.portName,
+        "baud": serialPort.baudRate,
+        "dataBits": serialPort.dataBits,
+        "stopBits": serialPort.stopBits,
+        "parity": serialPort.parity,
+        "rtscts": serialPort.rtscts,
+        "xon": serialPort.xon,
+        "xoff": serialPort.xoff,
+        "xany": serialPort.xany,
+        "isOpened": serialPort.isOpenPort()
     }
     dataTable.push(obj);
     res.json(dataTable);
@@ -44,25 +44,17 @@ controller.get('/', (req, res) => {
     res.json(resultText);
 });
 
-controller.put('/', (req, res) => {
-
-
-    switch (req.body.options) {
-
-        case 'start': 
-        if (serialPort.openPort()) {
-            resultText = "openPort command succesfully runned.";
-        } else {
-            resultText = "openPort error.";
-        }
-            break;
-        case 'stop': serialPort.closePort();
-            resultText = "stop command require.";
-            break;
-
-
-
+controller.put('/start', (req, res) => {
+    if (serialPort.openPort()) {
+        resultText = "openPort command succesfully runned.";
     };
+});
+
+controller.put('/stop', (req, res) => {
+
+
+    serialPort.closePort();
+
     res.json(resultText);
 });
 
