@@ -4,7 +4,7 @@ const serialPortObject = require('serialport');
 var portName = 'COM2';
 var baudRate = 9600;    /** The baud rate of the port to be opened. This should match one of the commonly available baud rates, such as 110, 300, 1200, 2400, 4800, 9600, 14400, 
                         19200, 38400, 57600, or 115200. Custom rates are supported best effort per platform. The device connected to the serial port is not guaranteed to 
-                        support the requested baud rate, even if the port itself supports that baud rate.*/ 
+                        support the requested baud rate, even if the port itself supports that baud rate.*/
 var dataBits = 8;       // Must be one of these: 8, 7, 6, or 5.
 var stopBits = 1;       // Must be one of these: 1 or 2.
 var parity = "none";      // Must be one of these: 'none', 'even', 'mark', 'odd', 'space'.
@@ -26,9 +26,12 @@ var attemptTimeout;
 
 function openPort() {
     port.open(function (err) {
-
-        console.log('Port is not open: ' + err.message);
-        return false;
+        if (err) {
+            console.log('Error opening port: ', err.message);
+            return false;
+        } else {
+            return true;
+        }
         //        attemptTimeout = setTimeout(openPort, 10000); // next attempt to open after 10s
     });
 }
@@ -37,6 +40,20 @@ function closePort() {
     if (port.isOpen) {
         port.close();
     }
+    return true;
+}
+
+
+
+port.on('close', function () {
+    console.log('CLOSE');
+    /* Clear the timeout intervel. */
+    //    clearTimeout(attemptTimeout);
+    //    open(); // reopen 
+});
+
+function isOpenPort() {
+    return port.isOpen;
 }
 
 port.on('open', function () {
@@ -59,14 +76,4 @@ port.on('open', function () {
     //    setInterval(send, 1000);
 });
 
-port.on('close', function () {
-    console.log('CLOSE');
-    /* Clear the timeout intervel. */
-    //    clearTimeout(attemptTimeout);
-    //    open(); // reopen 
-});
-
-function isOpenPort() {
-    return port.isOpen;
-}
-module.exports = { openPort, closePort, portName, baudRate, dataBits, stopBits, parity, rtscts, xon, xoff, xany, isOpenPort};
+module.exports = { openPort, closePort, portName, baudRate, dataBits, stopBits, parity, rtscts, xon, xoff, xany, isOpenPort };

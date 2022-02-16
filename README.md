@@ -42,15 +42,25 @@ Test methode:
 
 ![](resources/Modbus_client_input_registers.png)
 
-- open the visual studion code (or your so loved IDE.) Open the github cloned nodejs files then start in the terminal a modbusbackend.js file. Type the terminal :
-node .\modbusbackend.js (The modbusbackend opening the COM2 port. If you have to you can change the com port in modbusbackend.js file.)
+- open the visual studion code (or your so loved IDE.) Open the github cloned nodejs files then start in the terminal a index.js file. Type the terminal :
+node .\index.js (The modbusbackend opening the COM2 port. If you have to you can change the com port in index.js file.)
 You can see as is this: <p>
-![run modbusbackend.png.](resources/run_modbusbackend.png)
+
+Some basic Git commands are:
+```
+PS C:\Users\bekeband\repos\scadaMODBUS> node .\index.js
+bandiSCADA simple scada backend for MODBUS datas.
+App listening at http://localhost:3000
+```
 
  ## Running Postman
 - run the <a href="https://www.postman.com/" target="_blank"> postman </a> application.
 
-### Test the get command.
+#### Test the get status program.
+
+
+
+### Test the get.
 - RHR (Read holding register) command.
 - Type the postman the get command:
 http://localhost:3000/RHR/2/4
