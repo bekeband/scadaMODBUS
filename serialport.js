@@ -77,7 +77,6 @@ port.on('open', function () {
     //    setInterval(send, 1000);
 });
 
-<<<<<<< HEAD
 port.on('close', function () {
     console.log('CLOSE');
     /* Clear the timeout intervel. */
@@ -88,6 +87,4 @@ port.on('close', function () {
 function isOpenPort() {
     return port.isOpen;
 }
-=======
->>>>>>> 149da077b0dfa0edb83c5b5e62355879ad0fc583
 module.exports = { openPort, closePort, portName, baudRate, dataBits, stopBits, parity, rtscts, xon, xoff, xany, isOpenPort };
