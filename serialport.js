@@ -27,16 +27,6 @@ var attemptTimeout;
 function openPort() {
 
     port.open(function (err) {
-<<<<<<< HEAD
-
-        if (err) {
-            console.log('Port is not open: ' + err.message);
-            return false;
-        }
-        else {
-            return true;
-        }
-=======
         if (err) {
             console.log('Error opening port: ', err.message);
             return false;
@@ -44,7 +34,6 @@ function openPort() {
             return true;
         }
         //        attemptTimeout = setTimeout(openPort, 10000); // next attempt to open after 10s
->>>>>>> 149da077b0dfa0edb83c5b5e62355879ad0fc583
     });
 }
 
