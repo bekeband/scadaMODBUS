@@ -27,6 +27,7 @@ var attemptTimeout;
 function openPort() {
 
     port.open(function (err) {
+<<<<<<< HEAD
 
         if (err) {
             console.log('Port is not open: ' + err.message);
@@ -35,6 +36,15 @@ function openPort() {
         else {
             return true;
         }
+=======
+        if (err) {
+            console.log('Error opening port: ', err.message);
+            return false;
+        } else {
+            return true;
+        }
+        //        attemptTimeout = setTimeout(openPort, 10000); // next attempt to open after 10s
+>>>>>>> 149da077b0dfa0edb83c5b5e62355879ad0fc583
     });
 }
 
@@ -42,6 +52,20 @@ function closePort() {
     if (port.isOpen) {
         port.close();
     }
+    return true;
+}
+
+
+
+port.on('close', function () {
+    console.log('CLOSE');
+    /* Clear the timeout intervel. */
+    //    clearTimeout(attemptTimeout);
+    //    open(); // reopen 
+});
+
+function isOpenPort() {
+    return port.isOpen;
 }
 
 port.on('open', function () {
@@ -64,6 +88,7 @@ port.on('open', function () {
     //    setInterval(send, 1000);
 });
 
+<<<<<<< HEAD
 port.on('close', function () {
     console.log('CLOSE');
     /* Clear the timeout intervel. */
@@ -74,4 +99,6 @@ port.on('close', function () {
 function isOpenPort() {
     return port.isOpen;
 }
+=======
+>>>>>>> 149da077b0dfa0edb83c5b5e62355879ad0fc583
 module.exports = { openPort, closePort, portName, baudRate, dataBits, stopBits, parity, rtscts, xon, xoff, xany, isOpenPort };

@@ -47,14 +47,24 @@ controller.get('/', (req, res) => {
 controller.put('/start', (req, res) => {
     if (serialPort.openPort()) {
         resultText = "openPort command succesfully runned.";
+<<<<<<< HEAD
     };
     res.json("Port is opened succesfully.")
+=======
+    } else {
+        resultText = "openPort did not succesfully.";
+    }
+    res.json(resultText);
+>>>>>>> 149da077b0dfa0edb83c5b5e62355879ad0fc583
 });
 
 controller.put('/stop', (req, res) => {
 
-
-    serialPort.closePort();
+    if (serialPort.closePort()) {
+        resultText = "closePort command successfully maked.";
+    }else {
+        resultText = "closePort did not successfully.";
+    }
 
     res.json(resultText);
 });
