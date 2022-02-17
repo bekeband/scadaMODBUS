@@ -48,6 +48,7 @@ controller.put('/start', (req, res) => {
     if (serialPort.openPort()) {
         resultText = "openPort command succesfully runned.";
     };
+    res.json("Port is opened succesfully.")
 });
 
 controller.put('/stop', (req, res) => {
