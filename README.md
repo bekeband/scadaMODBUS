@@ -58,84 +58,34 @@ App listening at http://localhost:3000
 
 #### Test the get status program.
 
-
-
-### Test the get.
-- RHR (Read holding register) command.
-- Type the postman the get command:
-http://localhost:3000/RHR/2/4
-- If all right the returned jSon datas are:
-
+Run in the postman program : get http://localhost:3000/options/status
+The answer is:
+```
+[
     {
-        "register": 2,
-        "value": 46687
-    },
-    {
-        "register": 3,
-        "value": 40428
-    },
-    {
-        "register": 4,
-        "value": 28056
-    },
-    {
-        "register": 5,
-        "value": 52070
+        "port": "COM2",
+        "baud": 9600,
+        "dataBits": 8,
+        "stopBits": 1,
+        "parity": "none",
+        "rtscts": false,
+        "xon": false,
+        "xoff": false,
+        "xany": false,
+        "isOpened": true
     }
+]
+```
 
-- RC (Read coils) command.
-- Type the postman the get command:
-http://localhost:3000/RC/0/23
-- If all right the returned jSon datas are:
+Stop the communication port command: put http://localhost:3000/options/stop
+The answer is:
+```
+closePort command successfully maked.
+```
 
-{
-        "register": 0,
-        "value": 173
-    },
-    {
-        "register": 1,
-        "value": 58
-    },
-    {
-        "register": 2,
-        "value": 64
-    }
+### Test the modbus read register. 
 
-- RDI (Read discrete inputs) command.
-- Type the postman the get command:
-http://localhost:3000/RDI/0/9
-- If all right the returned jSon datas are:
 
-{
-        "register": 0,
-        "value": 154
-    },
-    {
-        "register": 1,
-        "value": 1
-    }
-
-- RIR (Read input registers) command.
-- Type the postman the get command:
-http://localhost:3000/RIR/2/4
-- If all right the returned jSon datas are:
-
- {
-        "register": 2,
-        "value": 45259
-    },
-    {
-        "register": 3,
-        "value": 6079
-    },
-    {
-        "register": 4,
-        "value": 39050
-    },
-    {
-        "register": 5,
-        "value": 59278
-    }
 
 ### Test the write commands. 
 - run the <a href="https://www.postman.com/" target="_blank"> postman </a> application.

@@ -14,7 +14,7 @@ var xoff = false;       //
 var xany = false;       //
 
 /**Open port automatically now. */
-var port = new serialPortObject(portName, { autoOpen: true, baudRate: baudRate });
+var port = new serialPortObject(portName, { autoOpen: false, baudRate: baudRate });
 //var port = null;
 
 var attemptTimeout;
@@ -87,4 +87,5 @@ port.on('close', function () {
 function isOpenPort() {
     return port.isOpen;
 }
+
 module.exports = { openPort, closePort, portName, baudRate, dataBits, stopBits, parity, rtscts, xon, xoff, xany, isOpenPort };
