@@ -1,7 +1,6 @@
 const express = require('express');
 const modbus = require('./modbus');
 const controller = express.Router();
-const modbus = require('./modbus');
 
 /**datas routes file. */
 

@@ -1,27 +1,5 @@
 
 
-<<<<<<< HEAD
-=======
-/* Serial port open */
-const SerialPort = require('serialport');
-const util = require('util');
-
-const port = new SerialPort('COM2')
-
-/**
- * Max outbuffer size.
- */
-
-const MODBUS_OUT_BUFFER_SIZE = 50;
-
-
-/** 
- * Outbuffer to serial port 
- * */
-
- const outBuffer = []; // = Buffer.alloc(MODBUS_OUT_BUFFER_SIZE);
-
->>>>>>> 0a78ebbc75293fbc5ae084932738b9e35e3f429a
 /* MODBUS function codes. */
 const READ_COILS = 0x01;
 const READ_DISCRETE_INPUTS = 0x02;
@@ -42,7 +20,6 @@ const READ_WRITE_MULTIPLE_REGISTERS = 0x17;
 const READ_FIFO_QUEUE = 0x18;
 const ENCAPSULATED_INTERFACE_TRANSPORT = 0x2B;
 
-<<<<<<< HEAD
 const MODBUS_ERROR_CODE_SHIFT = 0x80;
 
 function commandItem(commandString, commandCode) {
@@ -139,33 +116,6 @@ function getErrorString(errorCode) {
     });
     return findedCode;
 }
-=======
-modbusDeviceAddress = 1;
-
-const MODBUS_ERROR_CODE_SHIFT = 0x80;
-
-
- // Compute the MODBUS RTU CRC
- function ModRTU_CRC(buf, len) {
-     var crc = 0xFFFF;
- 
-     for (pos = 0; pos < len; pos++) {
-         crc ^= buf[pos];          // XOR byte into least sig. byte of crc
- 
-         for (i = 8; i != 0; i--) {    // Loop over each bit
-             if ((crc & 0x0001) != 0) {      // If the LSB is set
-                 crc >>= 1;                    // Shift right and XOR 0xA001
-                 crc ^= 0xA001;
-             }
-             else                            // Else LSB is not set
-                 crc >>= 1;                    // Just shift right
-         }
-     }
-     // Note, this number has low and high bytes swapped, so use it accordingly (or swap bytes)
-     return parseInt(crc);
- }
- 
->>>>>>> 0a78ebbc75293fbc5ae084932738b9e35e3f429a
 
 /**
  * 
@@ -174,11 +124,7 @@ const MODBUS_ERROR_CODE_SHIFT = 0x80;
  * @returns 
  */
 
-<<<<<<< HEAD
 function isEqualBuffers(input1, input2) {
-=======
- function isEqualBuffers(input1, input2) {
->>>>>>> 0a78ebbc75293fbc5ae084932738b9e35e3f429a
     result = false;
     if ((input1.length === input2.length) && (input1.length > 0)) {
         for (i = 0; i < input1.length - 1; i++) {
