@@ -51,6 +51,7 @@ function ModRTU_CRC(buf, len) {
     // Note, this number has low and high bytes swapped, so use it accordingly (or swap bytes)
     return parseInt(crc);
 }
+
 /* MODBUS function codes. */
 const READ_COILS = 0x01;
 const READ_DISCRETE_INPUTS = 0x02;
@@ -192,6 +193,7 @@ function makeCommandBuffer(buffer, deviceAddress, functionCode) {
  * @param {*} nextData 
  * @returns 
  */
+
 function storeCRCOnBufferTail(buffer, nextData) {
     var CRC = ModRTU_CRC(buffer, nextData);
     outBuffer[nextData++] = CRC & 0xFF;

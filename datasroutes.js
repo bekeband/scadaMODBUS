@@ -1,6 +1,7 @@
 const express = require('express');
 const modbus = require('./modbus');
 const controller = express.Router();
+const modbus = require('./modbus');
 
 /**datas routes file. */
 
@@ -18,7 +19,7 @@ controller.get('/', (req, res) => {
     res.json("DATAS GET COMMAND.");
 });
 
-controller.put('/', (req, res) => {
+controller.put('/coils', (req, res) => {
     console.log(req.body);
     res.json("DATAS PUT COMMAND RESPONSE.");
 });
