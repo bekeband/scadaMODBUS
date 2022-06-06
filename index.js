@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 app.use('/options', require('./optionsroutes'));
 
 /**
- * datas for datas reading and writing.
+ * datas for datas reading and writing MODBUS datas
  */
 
 app.use('/datas', require('./datasroutes'));

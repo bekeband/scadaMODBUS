@@ -274,9 +274,9 @@ function getDatas() {
     p = new Promise((resolve, reject) => {
 
         currentModbusCommand = getCommandCode(req.params.reg_type);
-
+        console.debug("CURRENT MODBUS COMMAND = ", currentModbusCommand);
         assemblyTwoWordsCommand(modbusDeviceAddress, currentModbusCommand, req.params.address, req.params.quantity);
-        //  console.log("WRITEBUFFER = ", outBuffer);    
+        console.debug("WRITEBUFFER = ", outBuffer);    
 
         /**Write MODBUS outbuffer to serial. */
         port.write(outBuffer);
@@ -327,5 +327,5 @@ function getDatas() {
 };
 
 
-module.exports = { READ_COILS, getDatas };
+module.exports = { READ_COILS, getDatas, assemblyTwoWordsCommand };
 
