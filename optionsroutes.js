@@ -13,6 +13,24 @@ function insertSerialPort(serialPortObject) {
     return serialPorts;
 }
 
+function openSerialPort(index) {
+
+    if (serialPorts[index] != null) {
+        serialPorts[index].SerialPort = new SerialPort(serialPorts[index].name, 
+            {baudRate: serialPorts[index].baudRate, stopBits: serialPorts[index].stopBits,
+                parity: serialPorts[index].parity
+        });
+    } else {
+        
+    }
+
+}
+
+/**
+ * 
+ * @param {*} portdID 
+ * @returns 
+ */
 function searchSerialPort(portdID) {
 //    console.debug("Search in serialPorts:", portdID);
     for (let index = 0; index < serialPorts.length; index++) {
